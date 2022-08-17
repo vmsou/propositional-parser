@@ -2,6 +2,7 @@
 
 #pragma once
 #include <deque>
+#include <functional>
 #include <iostream>
 #include <map>
 #include <sstream>
@@ -12,9 +13,7 @@
 #ifndef TOKENIZER_HPP
 #define TOKENIZER_HPP
 
-using Rules_T = std::unordered_map<std::string, std::string>;
-
-struct Position { int line, column; }
+struct Position { int line, column; };
 
 struct Token {
     // Attributes
@@ -24,17 +23,20 @@ struct Token {
 
     // Constructors
     Token(std::string kind="NONE", std::string text="", Position pos={0,0});
+
+    // Operators
+    operator bool() const { return this->kind != "NONE"; }
 };
 
 struct Tokenizer {
     // Attributes
     private:
+        int line, col = 0;
         std::stringstream ss;
-        Rules_T* rules;
 
     // Constructors
     public:
-        Tokenizer(Rules_T* rules);
+        Tokenizer() = default;
 
     // Methods
     public:

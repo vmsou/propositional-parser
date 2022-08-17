@@ -8,12 +8,8 @@
 7. FechaParen=")"
 8. OperatorUnario="¬"
 9. OperatorBinario="∨"|"∧"|"→"|"↔"
-*/
 
-#include "main.hpp"
-
-int main() {
-    std::unordered_map<std::string, std::string> rules{
+std::unordered_map<std::string, std::string> rules{
         {"Formula", "Constante|Proposicao|FormulaUnaria|FormulaBinaria"},
         {"Constante", "'T'|'F'"},
         {"Proposicao", "[a-z0-9]+"},
@@ -23,11 +19,15 @@ int main() {
         {"FechaParen", "')'"},
         {"OperadorUnario", R"(\neg)"},
         {"OperadorBinario", R"(\lor|\land|\implies|\iff)"},
-    };
+};
+*/
 
-    Tokenizer tokenizer{ &rules };
+#include "main.hpp"
 
-    std::deque<Token> tokens = tokenizer.tokenize("T");
+int main() {
+    Tokenizer tokenizer{};
+
+    std::deque<Token> tokens = tokenizer.tokenize("T \\lor F");
 
     while (!tokens.empty()) {
         std::cout << tokens.front() << '\n';
