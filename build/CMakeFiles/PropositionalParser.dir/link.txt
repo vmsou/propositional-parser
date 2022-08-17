@@ -1,0 +1,3 @@
+D:\Aplicativos\CMake\bin\cmake.exe -E rm -f CMakeFiles\PropositionalParser.dir/objects.a
+D:\MinGW\mingw64\bin\ar.exe qc CMakeFiles\PropositionalParser.dir/objects.a @CMakeFiles\PropositionalParser.dir\objects1.rsp
+D:\MinGW\mingw64\bin\g++.exe -Wall -g -Wl,--whole-archive CMakeFiles\PropositionalParser.dir/objects.a -Wl,--no-whole-archive -o PropositionalParser.exe -Wl,--out-implib,libPropositionalParser.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\PropositionalParser.dir\linklibs.rsp
