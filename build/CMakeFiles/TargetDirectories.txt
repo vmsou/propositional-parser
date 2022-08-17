@@ -1,3 +1,0 @@
-D:/Git/propositional-parser/build/CMakeFiles/PropositionalParser.dir
-D:/Git/propositional-parser/build/CMakeFiles/edit_cache.dir
-D:/Git/propositional-parser/build/CMakeFiles/rebuild_cache.dir
