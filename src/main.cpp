@@ -27,7 +27,7 @@ std::unordered_map<std::string, std::string> rules{
 int main() {
     Tokenizer tokenizer{};
 
-    std::deque<Token> tokens = tokenizer.tokenize("T \\lor F");
+    std::deque<Token> tokens = tokenizer.tokenize("(T \\lor F)");
 
     while (!tokens.empty()) {
         std::cout << tokens.front() << '\n';

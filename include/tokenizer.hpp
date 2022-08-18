@@ -13,7 +13,7 @@
 #ifndef TOKENIZER_HPP
 #define TOKENIZER_HPP
 
-struct Position { int line, column; };
+struct Position { std::size_t line, column; };
 
 struct Token {
     // Attributes
@@ -31,7 +31,7 @@ struct Token {
 struct Tokenizer {
     // Attributes
     private:
-        int line, col = 0;
+        std::size_t line, col = 0;
         std::stringstream ss;
 
     // Constructors
@@ -46,6 +46,7 @@ struct Tokenizer {
 };
 
 // Functions
+std::ostream& operator<<(std::ostream& os, const Position& t);
 std::ostream& operator<<(std::ostream& os, const Token& t);
 
 #endif

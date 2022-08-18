@@ -22,9 +22,11 @@ std::deque<Token> Tokenizer::tokenize(const std::string& text) {
 }
 
 Token Tokenizer::get() {
+    Token t;
     std::string text;
-    char c;
-    while (true) {
+    char c = '\0';
+    bool match = false;
+    while (!match) {
         if (!this->ss.get(c)) return Token{};
         switch (c) {
             case '\n':
@@ -33,28 +35,46 @@ Token Tokenizer::get() {
                 continue;;
             case ' ': case '\t': continue;
             case 'T': case 'F': 
+                match = true;
                 text += c;
-                return Token{ "Constante", text, {this->line, this->col} };
+                t = Token{ "Constante", text, {this->line, this->col} };
+                break;
             case '(':
+                match = true;
                 text += c;
-                return Token{ "AbreParen", text, {this->line, this->col} };
+                t = Token{ "AbreParen", text, {this->line, this->col} };
+                break;
             case ')':
+                match = true;
                 text += c;
-                return Token{ "FechaParen", text, {this->line, this->col} };
+                t = Token{ "FechaParen", text, {this->line, this->col} };
+                break;
             case 'a' ... 'z': case '\\':
                 text += c;
-                if (text == "\\neg") return Token{ "OperadorUnario", text, { this->line, this->col} };
-                else if (text == "\\lor" || text == "\\and" || text == "\\implies" || text == "\\iff") return Token{ "OperadorBinario", text, {this->line, this->col} };
+                if (text == "\\neg") {
+                    match = true;
+                    t = Token{ "OperadorUnario", text, { this->line, this->col - text.size()} };
+                    break;
+                }
+                else if (text == "\\lor" || text == "\\and" || text == "\\implies" || text == "\\iff") { 
+                    match = true;
+                    t = Token{ "OperadorBinario", text, {this->line, this->col - text.size()} };
+                    break;
+                }
                 break;
         }
         ++this->col;
     }
-    return Token{};
+    return t;
 }
 
 bool Tokenizer::is_empty() const { return this->ss.rdbuf()->in_avail() == 0; }
 
 // Functions
+std::ostream& operator<<(std::ostream& os, const Position& t) {
+    return os << '{' << t.line << ", " << t.column << "}";
+}
+
 std::ostream& operator<<(std::ostream& os, const Token& t) {
-    return os << "Token(" << "kind='" << t.kind << "', text='" << t.text << "')";
+    return os << "Token(" << t.kind << ", '" << t.text << "', " << t.pos << ")";
 }
