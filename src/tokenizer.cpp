@@ -23,7 +23,7 @@ std::deque<Token> Tokenizer::tokenize(const std::string& text) {
 
     while (!this->is_empty()) {
         Token t = this->get();;
-        tokens.push_back(t);
+        if (t) tokens.push_back(t);
     }
     return tokens;
 }

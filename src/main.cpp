@@ -17,8 +17,12 @@ int main() {
         {"Constante", {"T", "F"}},
         {"AbreParen", {"("}},
         {"FechaParen", {")"}},
-        {"OperadorUnario", {"\\neg"}},
-        {"OperadorBinario", {"\\lor", "\\land", "\\implies", "\\iff"}},
+        {"OperadorUnario", {"\\neg", "¬"}},
+        {"OperadorBinario", {
+            "\\lor", "\\land", "\\implies", "\\iff",
+            "∨", "∧", "→", "↔"
+            }
+        },
     };
 
     std::string expr;

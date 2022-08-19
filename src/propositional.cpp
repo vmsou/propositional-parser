@@ -11,8 +11,8 @@ Token PropositionalTokenizer::get() {
     bool is_proposition = true;
     while (!match) {
         if (!this->ss.get(c)) {
-            if (!start_proposition || !is_proposition) return Token{};
-            return Token{ "Proposicao", text, {this->line, this->col - text.size() } };
+            if (start_proposition & is_proposition) return Token{ "Proposicao", text, {this->line, this->col - text.size() } };
+            return Token{};
         };
 
         switch (c) {
@@ -28,11 +28,14 @@ Token PropositionalTokenizer::get() {
                 is_proposition = false;
                 text += c;
                 break;
-            case ' ': case '\t': 
+            case ' ': case '\t': case '\r': case '\f': case '\v':
                 if (start_proposition & is_proposition) {
                     start_proposition = false; 
                     end_proposition = true;
                 }
+                break;
+            default:
+                text += c;
                 break;
         }
 
@@ -44,6 +47,7 @@ Token PropositionalTokenizer::get() {
         }
         else if (end_proposition & is_proposition) {
             match = true;
+            start_proposition = false;
             end_proposition = false;
             t = Token{ "Proposicao", text, {this->line, this->col - text.size()} };
         }
