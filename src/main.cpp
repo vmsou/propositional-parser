@@ -36,10 +36,8 @@ int main() {
         if (expr.empty()) { is_running = false; continue; }
 
         std::deque<Token> tokens = tokenizer.tokenize(expr);
-        while (!tokens.empty()) {
-            std::cout << tokens.front() << '\n';
-            tokens.pop_front();
-        }
+
+        for (const Token& t : tokens) std::cout << t << '\n';
     }
 
     std::cout << "Successful exit." << std::endl;
