@@ -2,7 +2,7 @@
 #include <iostream>
 #include <unordered_map>
 
-#include "tokenizer.hpp"
+#include "propositional.hpp"
 
 
 bool is_formula(const std::string& text);

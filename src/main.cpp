@@ -27,7 +27,7 @@ std::unordered_map<std::string, std::string> rules{
 int main() {
     bool is_running = true;
     std::string expr;
-    Tokenizer tokenizer{};
+    PropositionalTokenizer tokenizer;
 
     while (is_running) {
         std::cout << "Expression (empty to exit): ";

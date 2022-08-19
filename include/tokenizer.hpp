@@ -13,7 +13,7 @@
 #ifndef TOKENIZER_HPP
 #define TOKENIZER_HPP
 
-struct Position { std::size_t line, column; };
+struct Position { std::size_t line = 0, column = 0; };
 
 struct Token {
     // Attributes
@@ -28,10 +28,10 @@ struct Token {
     operator bool() const { return this->kind != "NONE"; }
 };
 
-struct Tokenizer {
+class Tokenizer {
     // Attributes
-    private:
-        std::size_t line, col = 0;
+    protected:
+        std::size_t line = 0, col = 0;
         std::stringstream ss;
 
     // Constructors
@@ -40,8 +40,8 @@ struct Tokenizer {
 
     // Methods
     public:
+        virtual Token get() = 0;
         std::deque<Token> tokenize(const std::string& text);
-        Token get();
         bool is_empty() const;
 };
 
