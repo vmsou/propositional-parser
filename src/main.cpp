@@ -25,12 +25,22 @@ std::unordered_map<std::string, std::string> rules{
 #include "main.hpp"
 
 int main() {
+    bool is_running = true;
+    std::string expr;
     Tokenizer tokenizer{};
 
-    std::deque<Token> tokens = tokenizer.tokenize("(T \\lor F)");
+    while (is_running) {
+        std::cout << "Expression (empty to exit): ";
+        std::getline(std::cin, expr);
 
-    while (!tokens.empty()) {
-        std::cout << tokens.front() << '\n';
-        tokens.pop_front();
+        if (expr.empty()) { is_running = false; continue; }
+
+        std::deque<Token> tokens = tokenizer.tokenize(expr);
+        while (!tokens.empty()) {
+            std::cout << tokens.front() << '\n';
+            tokens.pop_front();
+        }
     }
+
+    std::cout << "Successful exit." << std::endl;
 }

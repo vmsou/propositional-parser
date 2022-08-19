@@ -33,7 +33,7 @@ Token Tokenizer::get() {
                 this->col = 0;
                 ++this->line;
                 continue;;
-            case ' ': case '\t': continue;
+            case ' ': case '\t': break;
             case 'T': case 'F': 
                 match = true;
                 text += c;
@@ -53,12 +53,12 @@ Token Tokenizer::get() {
                 text += c;
                 if (text == "\\neg") {
                     match = true;
-                    t = Token{ "OperadorUnario", text, { this->line, this->col - text.size()} };
+                    t = Token{ "OperadorUnario", text, { this->line, this->col - text.size() + 1} };
                     break;
                 }
-                else if (text == "\\lor" || text == "\\and" || text == "\\implies" || text == "\\iff") { 
+                else if (text == "\\lor" || text == "\\land" || text == "\\implies" || text == "\\iff") { 
                     match = true;
-                    t = Token{ "OperadorBinario", text, {this->line, this->col - text.size()} };
+                    t = Token{ "OperadorBinario", text, {this->line, this->col - text.size() + 1} };
                     break;
                 }
                 break;
