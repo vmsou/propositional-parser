@@ -12,35 +12,31 @@ Token PropositionalTokenizer::get() {
                 this->col = 0;
                 ++this->line;
                 continue;
+            case 'a' ... 'z': case 'A' ... 'Z': case '\\':
+                text += c;
+                break;
             case ' ': case '\t': break;
-            case 'T': case 'F': 
-                match = true;
-                text += c;
-                t = Token{ "Constante", text, {this->line, this->col} };
-                break;
-            case '(':
-                match = true;
-                text += c;
-                t = Token{ "AbreParen", text, {this->line, this->col} };
-                break;
-            case ')':
-                match = true;
-                text += c;
-                t = Token{ "FechaParen", text, {this->line, this->col} };
-                break;
-            case 'a' ... 'z': case '\\':
-                text += c;
-                if (text == "\\neg") {
-                    match = true;
-                    t = Token{ "OperadorUnario", text, { this->line, this->col - text.size() + 1} };
-                    break;
-                }
-                else if (text == "\\lor" || text == "\\land" || text == "\\implies" || text == "\\iff") { 
-                    match = true;
-                    t = Token{ "OperadorBinario", text, {this->line, this->col - text.size() + 1} };
-                    break;
-                }
-                break;
+        }
+        
+        if (text == "T" || text == "F")  {
+            match = true;
+            t = Token{ "Constante", text, {this->line, this->col} };
+        }
+        else if (text == "(") {
+            match = true;
+            t = Token{ "AbreParen", text, {this->line, this->col} };
+        }
+        else if (text == ")") {
+            match = true;
+            t = Token{ "FechaParen", text, {this->line, this->col} };
+        }
+        else if (text == "\\neg") {
+            match = true;
+            t = Token{ "OperadorUnario", text, { this->line, this->col - text.size() + 1} };
+        }
+        else if (text == "\\lor" || text == "\\land" || text == "\\implies" || text == "\\iff") {
+            match = true;
+            t = Token{ "OperadorBinario", text, {this->line, this->col - text.size() + 1} };
         }
         ++this->col;
     }

@@ -43,6 +43,8 @@ class Tokenizer {
         virtual Token get() = 0;
         std::deque<Token> tokenize(const std::string& text);
         bool is_empty() const;
+    private:
+        void set_text(const std::string& text);
 };
 
 // Functions
