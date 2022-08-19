@@ -1,5 +1,7 @@
 #include "propositional.hpp"
 
+PropositionalTokenizer::PropositionalTokenizer(TokenMap* token_map): Tokenizer{ token_map } {}
+
 Token PropositionalTokenizer::get() {
     Token t;
     std::string text;
@@ -10,7 +12,7 @@ Token PropositionalTokenizer::get() {
     while (!match) {
         if (!this->ss.get(c)) {
             if (!start_proposition || !is_proposition) return Token{};
-            return Token{ "Proposicao", text, {this->line, this->col - text.size() + 1} };
+            return Token{ "Proposicao", text, {this->line, this->col - text.size() } };
         };
 
         switch (c) {
@@ -33,31 +35,17 @@ Token PropositionalTokenizer::get() {
                 }
                 break;
         }
-        
-        if (text == "T" || text == "F")  {
+
+        std::string kind = this->match_kind(text);
+
+        if (kind != "NONE") {
             match = true;
-            t = Token{ "Constante", text, {this->line, this->col} };
-        }
-        else if (text == "(") {
-            match = true;
-            t = Token{ "AbreParen", text, {this->line, this->col} };
-        }
-        else if (text == ")") {
-            match = true;
-            t = Token{ "FechaParen", text, {this->line, this->col} };
-        }
-        else if (text == "\\neg") {
-            match = true;
-            t = Token{ "OperadorUnario", text, { this->line, this->col - text.size() + 1} };
-        }
-        else if (text == "\\lor" || text == "\\land" || text == "\\implies" || text == "\\iff") {
-            match = true;
-            t = Token{ "OperadorBinario", text, {this->line, this->col - text.size() + 1} };
+            t = Token{ kind, text, { this->line, (text.size() > 1) ? this->col - text.size() + 1 : this->col } };
         }
         else if (end_proposition & is_proposition) {
             match = true;
             end_proposition = false;
-            t = Token{ "Proposicao", text, {this->line, this->col - text.size() + 1} };
+            t = Token{ "Proposicao", text, {this->line, this->col - text.size()} };
         }
         ++this->col;
     }

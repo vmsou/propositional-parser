@@ -13,6 +13,8 @@
 #ifndef TOKENIZER_HPP
 #define TOKENIZER_HPP
 
+using TokenMap = std::unordered_map<std::string, std::vector<std::string>>;
+
 struct Position { std::size_t line = 0, column = 0; };
 
 struct Token {
@@ -33,15 +35,18 @@ class Tokenizer {
     protected:
         std::size_t line = 0, col = 0;
         std::stringstream ss;
+        TokenMap* token_map;
+        std::unordered_map<std::string, std::string> reverse_map;
 
     // Constructors
     public:
-        Tokenizer() = default;
+        Tokenizer(TokenMap* token_map);
 
     // Methods
     public:
         virtual Token get() = 0;
         std::deque<Token> tokenize(const std::string& text);
+        std::string match_kind(const std::string& text);
         bool is_empty() const;
     private:
         void set_text(const std::string& text);

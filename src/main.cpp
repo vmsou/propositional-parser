@@ -8,27 +8,23 @@
 7. FechaParen=")"
 8. OperatorUnario="¬"
 9. OperatorBinario="∨"|"∧"|"→"|"↔"
-
-std::unordered_map<std::string, std::string> rules{
-        {"Formula", "Constante|Proposicao|FormulaUnaria|FormulaBinaria"},
-        {"Constante", "'T'|'F'"},
-        {"Proposicao", "[a-z0-9]+"},
-        {"FormulaUnaria", "AbreParen OperadorUnario Formula FechaParen"},
-        {"FormulaBinaria", "AbreParen OperadorBinario Formula FechaParen"},
-        {"AbreParen", "'('"},
-        {"FechaParen", "')'"},
-        {"OperadorUnario", R"(\neg)"},
-        {"OperadorBinario", R"(\lor|\land|\implies|\iff)"},
-};
 */
 
 #include "main.hpp"
 
 int main() {
-    bool is_running = true;
-    std::string expr;
-    PropositionalTokenizer tokenizer;
+    TokenMap token_map{
+        {"Constante", {"T", "F"}},
+        {"AbreParen", {"("}},
+        {"FechaParen", {")"}},
+        {"OperadorUnario", {"\\neg"}},
+        {"OperadorBinario", {"\\lor", "\\land", "\\implies", "\\iff"}},
+    };
 
+    std::string expr;
+    PropositionalTokenizer tokenizer{ &token_map };
+
+    bool is_running = true;
     while (is_running) {
         std::cout << "Expression (empty to exit): ";
         std::getline(std::cin, expr);
