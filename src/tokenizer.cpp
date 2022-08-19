@@ -8,10 +8,10 @@ Token::Token(std::string kind, std::string text, Position pos): kind{ kind }, te
 
 /* Tokenizer */
 // Constructors
-Tokenizer::Tokenizer(TokenMap* token_map): token_map{ token_map } {
-    for (const auto& [kind, tokens] : *token_map) {
+Tokenizer::Tokenizer(KeywordMap* keyword_map): keyword_map{ keyword_map } {
+    for (const auto& [kind, tokens] : *keyword_map) {
         for (const std::string& token_text : tokens) {
-            this->reverse_map[token_text] = kind;
+            this->reverse_keyword[token_text] = kind;
         }
     }
 }
@@ -31,7 +31,7 @@ std::deque<Token> Tokenizer::tokenize(const std::string& text) {
 bool Tokenizer::is_empty() const { return this->ss.rdbuf()->in_avail() == 0; }
 
 std::string Tokenizer::match_kind(const std::string& text) {
-    for (const auto& [token_text, kind] : this->reverse_map) {
+    for (const auto& [token_text, kind] : this->reverse_keyword) {
         if (text == token_text) return kind;
     }
     return "NONE";
@@ -50,4 +50,15 @@ std::ostream& operator<<(std::ostream& os, const Position& t) {
 
 std::ostream& operator<<(std::ostream& os, const Token& t) {
     return os << "Token(" << t.kind << ", '" << t.text << "', " << t.pos << ")";
+}
+
+std::ostream& operator<<(std::ostream& os, const std::deque<Token>& d) {
+    const size_t size = d.size();
+    size_t i{};
+    os << '{';
+    for (const Token& t : d) {
+        os << t;
+        if (i < (size - 1)) os << ", ";
+    }
+    return os << '}';
 }

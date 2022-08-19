@@ -13,7 +13,7 @@
 #include "main.hpp"
 
 int main() {
-    TokenMap token_map{
+    KeywordMap keywords{
         {"Constante", {"T", "F"}},
         {"AbreParen", {"("}},
         {"FechaParen", {")"}},
@@ -26,7 +26,7 @@ int main() {
     };
 
     std::string expr;
-    PropositionalTokenizer tokenizer{ &token_map };
+    PropositionalTokenizer tokenizer{ &keywords };
 
     bool is_running = true;
     while (is_running) {
@@ -37,7 +37,7 @@ int main() {
 
         std::deque<Token> tokens = tokenizer.tokenize(expr);
 
-        for (const Token& t : tokens) std::cout << t << '\n';
+        std::cout << tokens << '\n';
     }
 
     std::cout << "Successful exit." << std::endl;

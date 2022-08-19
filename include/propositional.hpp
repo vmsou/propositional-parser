@@ -3,7 +3,7 @@
 class PropositionalTokenizer : public Tokenizer {
     // Constructor
     public:
-        PropositionalTokenizer(TokenMap* token_map);
+        PropositionalTokenizer(KeywordMap* keyword_map);
 
     // Methods
     public:

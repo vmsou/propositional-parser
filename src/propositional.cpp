@@ -1,6 +1,6 @@
 #include "propositional.hpp"
 
-PropositionalTokenizer::PropositionalTokenizer(TokenMap* token_map): Tokenizer{ token_map } {}
+PropositionalTokenizer::PropositionalTokenizer(KeywordMap* keyword_map): Tokenizer{ keyword_map } {}
 
 Token PropositionalTokenizer::get() {
     Token t;

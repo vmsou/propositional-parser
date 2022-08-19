@@ -12,7 +12,7 @@
 #ifndef TOKENIZER_HPP
 #define TOKENIZER_HPP
 
-using TokenMap = std::unordered_map<std::string, std::vector<std::string>>;
+using KeywordMap = std::unordered_map<std::string, std::vector<std::string>>;
 
 struct Position { std::size_t line = 0, column = 0; };
 
@@ -34,12 +34,12 @@ class Tokenizer {
     protected:
         std::size_t line = 0, col = 0;
         std::stringstream ss;
-        TokenMap* token_map;
-        std::unordered_map<std::string, std::string> reverse_map;
+        KeywordMap* keyword_map;
+        std::unordered_map<std::string, std::string> reverse_keyword;
 
     // Constructors
     public:
-        Tokenizer(TokenMap* token_map);
+        Tokenizer(KeywordMap* keyword_map);
 
     // Methods
     public:
@@ -54,5 +54,5 @@ class Tokenizer {
 // Functions
 std::ostream& operator<<(std::ostream& os, const Position& t);
 std::ostream& operator<<(std::ostream& os, const Token& t);
-
+std::ostream& operator<<(std::ostream& os, const std::deque<Token>& d);
 #endif
