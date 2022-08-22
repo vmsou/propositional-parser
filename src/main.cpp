@@ -26,6 +26,7 @@ int main() {
         },
     };
     PropositionalTokenizer tokenizer{ &keywords };
+    PropositionalParser parser{ & tokenizer };
 
     bool is_running = true;
     std::string expr;
@@ -37,6 +38,8 @@ int main() {
 
         std::deque<Token> tokens = tokenizer.tokenize(expr);
         std::cout << tokens << '\n';
+
+        std::cout << "Valid: " << std::boolalpha << parser.valid(expr) << '\n';
     }
 
     std::cout << "Successful exit." << std::endl;
