@@ -31,10 +31,8 @@ std::deque<Token> Tokenizer::tokenize(const std::string& text) {
 bool Tokenizer::is_empty() const { return this->ss.rdbuf()->in_avail() == 0; }
 
 std::string Tokenizer::match_kind(const std::string& text) {
-    for (const auto& [token_text, kind] : this->reverse_keyword) {
-        if (text == token_text) return kind;
-    }
-    return "NONE";
+    if (this->reverse_keyword.find(text) == this->reverse_keyword.end()) return "NONE";
+    return this->reverse_keyword.at(text);
 }
 
 void Tokenizer::set_text(const std::string& text) {
@@ -45,7 +43,7 @@ void Tokenizer::set_text(const std::string& text) {
 
 // Functions
 std::ostream& operator<<(std::ostream& os, const Position& t) {
-    return os << '{' << t.line << ", " << t.column << "}";
+    return os << '(' << t.line << ", " << t.column << ")";
 }
 
 std::ostream& operator<<(std::ostream& os, const Token& t) {
@@ -55,10 +53,11 @@ std::ostream& operator<<(std::ostream& os, const Token& t) {
 std::ostream& operator<<(std::ostream& os, const std::deque<Token>& d) {
     const size_t size = d.size();
     size_t i{};
-    os << '{';
+    os << '[';
     for (const Token& t : d) {
         os << t;
         if (i < (size - 1)) os << ", ";
+        ++i;
     }
-    return os << '}';
+    return os << ']';
 }

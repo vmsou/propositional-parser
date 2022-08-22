@@ -20,15 +20,15 @@ int main() {
         {"OperadorUnario", {"\\neg", "¬"}},
         {"OperadorBinario", {
             "\\lor", "\\land", "\\implies", "\\iff",
-            "∨", "∧", "→", "↔"
+            "∨", "∧", "→", "↔",
+            "||", "&&"
             }
         },
     };
-
-    std::string expr;
     PropositionalTokenizer tokenizer{ &keywords };
 
     bool is_running = true;
+    std::string expr;
     while (is_running) {
         std::cout << "Expression (empty to exit): ";
         std::getline(std::cin, expr);
@@ -36,7 +36,6 @@ int main() {
         if (expr.empty()) { is_running = false; continue; }
 
         std::deque<Token> tokens = tokenizer.tokenize(expr);
-
         std::cout << tokens << '\n';
     }
 

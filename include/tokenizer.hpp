@@ -8,6 +8,7 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #ifndef TOKENIZER_HPP
 #define TOKENIZER_HPP
