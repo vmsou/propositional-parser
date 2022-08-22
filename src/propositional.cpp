@@ -1,7 +1,12 @@
 #include "propositional.hpp"
 
+/* PropositionalTokenizer:: */
+
+// Constructors
 PropositionalTokenizer::PropositionalTokenizer(KeywordMap* keyword_map): Tokenizer{ keyword_map } {}
 
+
+// Methods
 Token PropositionalTokenizer::get() {
     Token t;
     std::string text;
@@ -54,4 +59,16 @@ Token PropositionalTokenizer::get() {
         ++this->col;
     }
     return t;
+}
+
+/* PropositionalParser:: */
+
+// Constructors
+PropositionalParser::PropositionalParser(Tokenizer* tokenizer): Parser{ tokenizer } {}
+
+// Methods
+bool PropositionalParser::valid(const std::string& expr) {
+    std::deque<Token> tokens = this->tokenizer->tokenize(expr);
+    bool accepted = this->is_formula(tokens);
+    return accepted;
 }

@@ -45,7 +45,7 @@ class Tokenizer {
     // Methods
     public:
         virtual Token get() = 0;
-        std::deque<Token> tokenize(const std::string& text);
+        std::deque<Token> tokenize(const std::string& expr);
         std::string match_kind(const std::string& text);
         bool is_empty() const;
     private:

@@ -17,8 +17,8 @@ Tokenizer::Tokenizer(KeywordMap* keyword_map): keyword_map{ keyword_map } {
 }
 
 // Methods
-std::deque<Token> Tokenizer::tokenize(const std::string& text) {
-    this->set_text(text);
+std::deque<Token> Tokenizer::tokenize(const std::string& expr) {
+    this->set_text(expr);
     std::deque<Token> tokens;
 
     while (!this->is_empty()) {
