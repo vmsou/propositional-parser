@@ -110,60 +110,64 @@ bool PropositionalParser::is_binary_operator(std::deque<Token>& tokens, bool sin
 
 bool PropositionalParser::is_formula(std::deque<Token>& tokens, bool single) {
     /* Formula = Constante|Proposicao|FormulaUnaria|FormulaBinaria */
-    return is_constant(tokens, single) || is_proposition(tokens, single) || is_binary_formula(tokens) || is_unary_formula(tokens);
+    return is_constant(tokens, single) || is_proposition(tokens, single) || is_unary_formula(tokens) || is_binary_formula(tokens);
 }
 
 bool PropositionalParser::is_unary_formula(std::deque<Token>& tokens) {
     /* FormulaUnaria = AbreParen OperadorUnario Formula FechaParen  */
     if (tokens.empty() || tokens.front().kind != "AbreParen") return false;
-    const Token& abre_paren = tokens.front(); tokens.pop_front();
+    cache.push_front(tokens.front()); tokens.pop_front();
 
     if (tokens.empty() || tokens.front().kind != "OperadorUnario") { 
-        tokens.push_front(abre_paren);
+        for (const Token& t : cache) tokens.push_front(t);
+        cache.clear();
         return false;
     }
-    const Token& op_unario = tokens.front(); tokens.pop_front();
+    cache.push_front(tokens.front()); tokens.pop_front();
     
     if (!is_formula(tokens, false)) {
-        tokens.push_front(op_unario);
-        tokens.push_front(abre_paren);
+        for (const Token& t : cache) tokens.push_front(t);
+        cache.clear();
         return false;
     }
     if (tokens.empty() || tokens.front().kind != "FechaParen") {
-        tokens.push_front(op_unario);
-        tokens.push_front(abre_paren);
+        for (const Token& t : cache) tokens.push_front(t);
+        cache.clear();
         return false;
     };
     tokens.pop_front();  // FechaParen
+    cache.clear();
     return true;
 }
 
 bool PropositionalParser::is_binary_formula(std::deque<Token>& tokens) {
     /* FormulaBinaria=AbreParen OperadorBinario Formula Formula FechaParen  */
     if (tokens.empty() || tokens.front().kind != "AbreParen") return false;
-    const Token& abre_paren = tokens.front(); tokens.pop_front();
+    cache.push_front(tokens.front()); tokens.pop_front();
 
     if (tokens.empty() || tokens.front().kind != "OperadorBinario") { 
-        tokens.push_front(abre_paren);
+        for (const Token& t : cache) tokens.push_front(t);
+        cache.clear();
         return false;
     }
-    const Token& op_binario = tokens.front(); tokens.pop_front();
+    cache.push_front(tokens.front()); tokens.pop_front();
     
     if (!is_formula(tokens, false)) {
-        tokens.push_front(op_binario);
-        tokens.push_front(abre_paren);
+        for (const Token& t : cache) tokens.push_front(t);
+        cache.clear();
         return false;
     }
     if (!is_formula(tokens, false)) {
-        tokens.push_front(op_binario);
-        tokens.push_front(abre_paren);
+        for (const Token& t : cache) tokens.push_front(t);
+        cache.clear();
         return false;
     }
     if (tokens.empty() || tokens.front().kind != "FechaParen") {
-        tokens.push_front(op_binario);
-        tokens.push_front(abre_paren);
+        for (const Token& t : cache) tokens.push_front(t);
+        cache.clear();
         return false;
     };
     tokens.pop_front();  // FechaParen
+    cache.clear();
     return true;
 }

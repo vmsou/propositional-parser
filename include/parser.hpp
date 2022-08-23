@@ -6,6 +6,7 @@ class Parser {
     // Attributes
     protected:
         Tokenizer* tokenizer;
+        std::deque<Token> cache;
 
     // Constructor
     public:

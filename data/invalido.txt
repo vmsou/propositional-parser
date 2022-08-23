@@ -4,6 +4,6 @@
 (\lor T)
 (\neg \lor)
 (\lor (\neg F))
-(\implies (\lor F T))
+(\implies (\lor F))
 (\lor T F
 \land T T)
