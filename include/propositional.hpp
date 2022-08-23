@@ -31,7 +31,7 @@ class PropositionalParser : public Parser {
         bool is_unary_operator(std::deque<Token>& tokens, bool single=true);
         bool is_binary_operator(std::deque<Token>& tokens, bool single=true);
 
-        bool is_formula(std::deque<Token>& tokens, bool only_single=true);
+        bool is_formula(std::deque<Token>& tokens, bool single=true);
         bool is_unary_formula(std::deque<Token>& tokens);
         bool is_binary_formula(std::deque<Token>& tokens);
 };
