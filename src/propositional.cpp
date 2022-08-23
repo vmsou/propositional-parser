@@ -25,6 +25,7 @@ Token PropositionalTokenizer::get() {
                 this->col = 0;
                 ++this->line;
                 continue;
+                break;
             case 'a' ... 'z': case '0' ... '9':
                 start_proposition = true;
                 text += c;
@@ -40,7 +41,13 @@ Token PropositionalTokenizer::get() {
                 }
                 break;
             default:
-                text += c;
+                if (start_proposition & is_proposition) {
+                    start_proposition = false;
+                    end_proposition = true;
+                    this->ss.putback(c);
+                } else {
+                    text += c;
+                }
                 break;
         }
 
@@ -74,77 +81,41 @@ bool PropositionalParser::valid(const std::string& expr) {
 }
 
 // Grammar
-bool PropositionalParser::is_formula(std::deque<Token>& tokens) {
+bool PropositionalParser::is_constant(std::deque<Token>& tokens, bool single) { 
+    return Parser::is_terminal(tokens, "Constante", single); 
+}
+
+bool PropositionalParser::is_proposition(std::deque<Token>& tokens, bool single) {
+    return Parser::is_terminal(tokens, "Proposicao", single);
+}
+
+bool PropositionalParser::is_open_parenthesis(std::deque<Token>& tokens, bool single) {
+    return Parser::is_terminal(tokens, "AbreParen", single);
+}
+
+bool PropositionalParser::is_close_parenthesis(std::deque<Token>& tokens, bool single) {
+    return Parser::is_terminal(tokens, "FechaParen", single);
+}
+
+bool PropositionalParser::is_unary_operator(std::deque<Token>& tokens, bool single) {
+    return Parser::is_terminal(tokens, "OperadorUnario", single);
+}
+
+bool PropositionalParser::is_binary_operator(std::deque<Token>& tokens, bool single) {
+    return Parser::is_terminal(tokens, "OperadorBinario", single);
+}
+
+bool PropositionalParser::is_formula(std::deque<Token>& tokens, bool only_single) {
     /* Formula = Constante|Proposicao|FormulaUnaria|FormulaBinaria */
-    return is_constant(tokens) || is_proposition(tokens) || is_unary_formula(tokens) || is_binary_formula(tokens);
-}
-
-bool PropositionalParser::is_constant(std::deque<Token>& tokens) {
-    /* Constante="T"|"F" */
-    if (tokens.empty()) return false;
-
-    const Token& token = tokens.front(); tokens.pop_front();
-    if (token.kind == "Constante") return true;
-    tokens.push_front(token);
-    return false;
-}
-
-bool PropositionalParser::is_proposition(std::deque<Token>& tokens) {
-    /* Proposicao=[a−z0−9]+ */
-    if (tokens.empty()) return false;
-
-    const Token& token = tokens.front(); tokens.pop_front();
-    if (token.kind == "Proposicao") return true;
-    tokens.push_front(token);
-    return false;
+    return is_constant(tokens, only_single) || is_proposition(tokens, only_single) || is_unary_formula(tokens) || is_binary_formula(tokens);
 }
 
 bool PropositionalParser::is_unary_formula(std::deque<Token>& tokens) {
     /* FormulaUnaria = AbreParen OperadorUnario Formula FechaParen  */
-    return is_open_parenthesis(tokens) && is_unary_operator(tokens) && is_formula(tokens) && is_close_parenthesis(tokens);
+    return is_open_parenthesis(tokens, false) && is_unary_operator(tokens, false) && is_formula(tokens, false) && is_close_parenthesis(tokens, false);
 }
 
 bool PropositionalParser::is_binary_formula(std::deque<Token>& tokens) {
     /* FormulaBinaria=AbreParen OperatorBinario Formula Formula FechaParen  */
-    return is_open_parenthesis(tokens) && is_binary_operator(tokens) && is_formula(tokens) && is_formula(tokens) && is_close_parenthesis(tokens);
-}
-
-bool PropositionalParser::is_open_parenthesis(std::deque<Token>& tokens) {
-    /* AbreParen="(" */
-    if (tokens.empty()) return false;
-
-    const Token& token = tokens.front(); tokens.pop_front();
-    if (token.kind == "AbreParen") return true;
-    tokens.push_front(token);
-    return false;
-}
-
-bool PropositionalParser::is_close_parenthesis(std::deque<Token>& tokens) {
-    /* FechaParen=")" */
-    if (tokens.empty()) return false;
-
-    const Token& token = tokens.front(); tokens.pop_front();
-    if (token.kind == "FechaParen") return true;
-    tokens.push_front(token);
-    return false;
-}
-
-bool PropositionalParser::is_unary_operator(std::deque<Token>& tokens) {
-    /* OperatorUnario="¬" */
-    if (tokens.empty()) return false;
-
-    const Token& token = tokens.front(); tokens.pop_front();
-    if (token.kind == "OperadorUnario") return true;
-    tokens.push_front(token);
-    return false;
-}
-
-bool PropositionalParser::is_binary_operator(std::deque<Token>& tokens) {
-    /* OperatorBinario= "∨"|"∧"|"→"|"↔" */
-    if (tokens.empty()) return false;
-
-    const Token& token = tokens.front(); tokens.pop_front();
-    if (token.kind == "OperadorBinario") return true;
-    tokens.push_front(token);
-    return false;
+    return is_open_parenthesis(tokens, false) && is_binary_operator(tokens, false) && is_formula(tokens, false) && is_formula(tokens, false) && is_close_parenthesis(tokens, false);
 }

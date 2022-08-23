@@ -1,3 +1,5 @@
+/* Analisador Sintático */
+
 #include "tokenizer.hpp"
 
 class Parser {
@@ -12,4 +14,6 @@ class Parser {
     // Methods
     public:
         virtual bool valid(const std::string& expr) = 0;
+
+        static bool is_terminal(std::deque<Token>& tokens, const std::string& kind, bool single=true);
 };

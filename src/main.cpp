@@ -26,7 +26,7 @@ int main() {
         },
     };
     PropositionalTokenizer tokenizer{ &keywords };
-    PropositionalParser parser{ & tokenizer };
+    PropositionalParser parser{ &tokenizer };
 
     bool is_running = true;
     std::string expr;
