@@ -13,6 +13,10 @@
 #include "main.hpp"
 
 int main() {
+    std::cout << "> Inicio: Parser Logica Proposicional" << '\n';
+    std::cout << "Arquivos: 'data/test.txt', 'data/valido.txt', 'data/invalido.txt'\n";
+    std::cout << "Pressione ENTER (nome do arquivo vazio) para finalizar programa.\n\n";
+
     KeywordMap keywords{
         {"Constante", {"T", "F"}},
         {"AbreParen", {"("}},
@@ -27,20 +31,29 @@ int main() {
     };
     PropositionalTokenizer tokenizer{ &keywords };
     PropositionalParser parser{ &tokenizer };
-
+    TextData td{};
+    
     bool is_running = true;
-    std::string expr;
     while (is_running) {
-        std::cout << "Expression (empty to exit): ";
-        std::getline(std::cin, expr);
-
-        if (expr.empty()) { is_running = false; continue; }
-
-        std::deque<Token> tokens = tokenizer.tokenize(expr);
-        std::cout << tokens << '\n';
-
-        std::cout << "Valid: " << std::boolalpha << parser.valid(expr) << '\n';
+        std::cout << "Arquivo: ";
+        std::string filename;
+        std::getline(std::cin, filename);
+        
+        if (filename.empty()) { is_running = false; continue; }
+        
+        try {
+            td = TextData::load(filename);
+        } catch (const std::runtime_error &err) {
+            std::cout << err.what() << "\n\n";
+            continue;
+        }
+    
+        for (const std::string& text : td.texts) {
+            bool result = parser.valid(text);
+            std::string msg = result ? "pertence" : "nao pertence";
+            std::cout << text << ": " << msg << '\n';
+        }
+        std::cout << '\n';
     }
-
-    std::cout << "Successful exit." << std::endl;
+    std::cout << "> Fim: Parser Logica Proposicional" << '\n';
 }
