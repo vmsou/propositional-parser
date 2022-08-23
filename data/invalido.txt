@@ -1,0 +1,9 @@
+8
+(T F)
+(\neg F F)
+(\lor T)
+(\neg \lor)
+(\lor (\neg F))
+(\implies (\lor F T))
+(\lor T F
+\land T T)

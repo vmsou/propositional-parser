@@ -1,0 +1,7 @@
+6
+F
+(\lor F)
+(\implies T b)
+(\neg T F)
+(\neg a123)
+(\land T T)

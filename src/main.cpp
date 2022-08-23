@@ -50,8 +50,7 @@ int main() {
     
         for (const std::string& text : td.texts) {
             bool result = parser.valid(text);
-            std::string msg = result ? "pertence" : "nao pertence";
-            std::cout << text << ": " << msg << '\n';
+            std::cout << text << ": " << (result ? "valido" : "invalido") << '\n';
         }
         std::cout << '\n';
     }

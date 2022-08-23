@@ -1,0 +1,8 @@
+7
+T
+(\neg T)
+(\lor T F)
+(\neg (\neg F))
+(\land (\neg F) (\lor T F))
+(\implies a b)
+(\iff a b)
