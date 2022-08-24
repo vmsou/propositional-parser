@@ -6,7 +6,8 @@
 struct TextData {
     std::size_t size;
     std::vector<std::string> texts;
-
+    
+    void read(const std::string& filename);
     static TextData load(const std::string& filename);
 };
 

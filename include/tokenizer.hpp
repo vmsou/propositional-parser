@@ -47,9 +47,9 @@ class Tokenizer {
         virtual Token get() = 0;
         std::list<Token> tokenize(const std::string& expr);
         std::string match_kind(const std::string& text);
-        bool is_empty() const;
+        bool empty() const { return this->ss.rdbuf()->in_avail() == 0; }
     private:
-        void set_text(const std::string& text);
+        void str(const std::string& text);
 };
 
 // Functions

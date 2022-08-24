@@ -1,11 +1,14 @@
 #include "reading.hpp"
 
-TextData TextData::load(const std::string& filename) {
+void TextData::read(const std::string& filename) {
     std::ifstream ifs{filename};
     if (!ifs) throw std::runtime_error{"Não foi possivel abrir o arquivo."};
-    
+    if (!(ifs >> *this)) throw std::runtime_error("Arquivo inválido.");
+}
+
+TextData TextData::load(const std::string& filename) {
     TextData td;
-    if (!(ifs >> td)) throw std::runtime_error("Arquivo inválido.");
+    td.read(filename);
     return td;
 }
 

@@ -47,6 +47,7 @@ int main() {
         {"OperadorUnario", {"\\neg", "¬"}},
         {"OperadorBinario", {
             "\\lor", "\\land", "\\implies", "\\iff",
+            "\\rightarrow", "\\leftrightarrow"
             "∨", "∧", "→", "↔",
             "||", "&&"
             }
@@ -72,7 +73,7 @@ int main() {
         }
     
         for (const std::string& text : td.texts) {
-            // std::deque<Token> tokens = tokenizer.tokenize(text);
+            // std::list<Token> tokens = tokenizer.tokenize(text);
             // std::cout << text << ": " << tokens << '\n';
             bool result = parser.valid(text);
             std::cout << text << ": " << (result ? "valido" : "invalido") << '\n';

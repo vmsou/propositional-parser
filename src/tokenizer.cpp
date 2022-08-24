@@ -18,27 +18,25 @@ Tokenizer::Tokenizer(KeywordMap* keyword_map): keyword_map{ keyword_map } {
 
 // Methods
 std::list<Token> Tokenizer::tokenize(const std::string& expr) {
-    this->set_text(expr);
+    this->str(expr);
     std::list<Token> tokens;
 
-    while (!this->is_empty()) {
+    while (!this->empty()) {
         Token t = this->get();;
         if (t) tokens.push_back(t);
     }
     return tokens;
 }
 
-bool Tokenizer::is_empty() const { return this->ss.rdbuf()->in_avail() == 0; }
-
 std::string Tokenizer::match_kind(const std::string& text) {
     if (this->reverse_keyword.find(text) == this->reverse_keyword.end()) return "NONE";
     return this->reverse_keyword.at(text);
 }
 
-void Tokenizer::set_text(const std::string& text) {
+void Tokenizer::str(const std::string& text) {
     this->line = 0;
     this->col = 0;
-    this->ss = std::istringstream{ text };
+    this->ss.str(text);
 }
 
 // Functions
