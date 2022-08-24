@@ -17,6 +17,6 @@ class Parser {
         static bool is_terminal(std::list<Token>& tokens, const std::string& kind, bool single=true);
 
     protected:
-        void push_token(std::list<Token>& tokens, std::list<Token>& cache);
-        void revert_tokens(std::list<Token>& tokens, std::list<Token>& cache);
+        static void push_token(std::list<Token>& tokens, std::list<Token>& cache);
+        static void revert_tokens(std::list<Token>& tokens, std::list<Token>& cache);
 };

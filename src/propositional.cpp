@@ -92,53 +92,33 @@ bool PropositionalParser::is_proposition(std::list<Token>& tokens, bool single) 
     return Parser::is_terminal(tokens, "Proposicao", single);
 }
 
-bool PropositionalParser::is_open_parenthesis(std::list<Token>& tokens, bool single) {
-    return Parser::is_terminal(tokens, "AbreParen", single);
-}
-
-bool PropositionalParser::is_close_parenthesis(std::list<Token>& tokens, bool single) {
-    return Parser::is_terminal(tokens, "FechaParen", single);
-}
-
-bool PropositionalParser::is_unary_operator(std::list<Token>& tokens, bool single) {
-    return Parser::is_terminal(tokens, "OperadorUnario", single);
-}
-
-bool PropositionalParser::is_binary_operator(std::list<Token>& tokens, bool single) {
-    return Parser::is_terminal(tokens, "OperadorBinario", single);
-}
-
 bool PropositionalParser::is_formula(std::list<Token>& tokens, bool single) {
     /* Formula = Constante|Proposicao|FormulaUnaria|FormulaBinaria */
     if (tokens.empty()) return false;
-    if (is_constant(tokens, single)) return true;
-    if (is_proposition(tokens, single)) return true;
-    if (is_unary_formula(tokens)) return true;
-    if (is_binary_formula(tokens)) return true;
-    return false;
+    return is_constant(tokens, single) || is_proposition(tokens, single) || is_unary_formula(tokens) || is_binary_formula(tokens);
 }
 
 bool PropositionalParser::is_unary_formula(std::list<Token>& tokens) {
     /* FormulaUnaria = AbreParen OperadorUnario Formula FechaParen  */
     if (tokens.empty() || tokens.front().kind != "AbreParen") return false;
     std::list<Token> cache;
-    this->push_token(tokens, cache);
+    Parser::push_token(tokens, cache);
 
     if (tokens.empty() || tokens.front().kind != "OperadorUnario") { 
-        this->revert_tokens(tokens, cache);
+        Parser::revert_tokens(tokens, cache);
         return false;
     }
-    this->push_token(tokens, cache);
+    Parser::push_token(tokens, cache);
     
     if (!is_formula(tokens, false)) {
-        this->revert_tokens(tokens, cache);
+        Parser::revert_tokens(tokens, cache);
         return false;
     }
     if (tokens.empty() || tokens.front().kind != "FechaParen") {
-        this->revert_tokens(tokens, cache);
+        Parser::revert_tokens(tokens, cache);
         return false;
     };
-    this->push_token(tokens, cache);
+    Parser::push_token(tokens, cache);
     return true;
 }
 
@@ -146,27 +126,27 @@ bool PropositionalParser::is_binary_formula(std::list<Token>& tokens) {
     /* FormulaBinaria=AbreParen OperadorBinario Formula Formula FechaParen  */
     if (tokens.empty() || tokens.front().kind != "AbreParen") return false;
     std::list<Token> cache;
-    this->push_token(tokens, cache);
+    Parser::push_token(tokens, cache);
 
     if (tokens.empty() || tokens.front().kind != "OperadorBinario") { 
-        this->revert_tokens(tokens, cache);
+        Parser::revert_tokens(tokens, cache);
         return false;
     }
-    this->push_token(tokens, cache);
+    Parser::push_token(tokens, cache);
     
     if (!is_formula(tokens, false)) {
-        this->revert_tokens(tokens, cache);
+        Parser::revert_tokens(tokens, cache);
         return false;
     }
     if (!is_formula(tokens, false)) {
-        this->revert_tokens(tokens, cache);
+        Parser::revert_tokens(tokens, cache);
         return false;
     }
     if (tokens.empty() || tokens.front().kind != "FechaParen") {
-        this->revert_tokens(tokens, cache);
+        Parser::revert_tokens(tokens, cache);
         return false;
     };
-    this->push_token(tokens, cache);
+    Parser::push_token(tokens, cache);
     cache.clear();
     return true;
 }

@@ -24,14 +24,10 @@ class PropositionalParser : public Parser {
 
     // Grammar
     public:
-        bool is_constant(std::list<Token>& tokens, bool single=true);
-        bool is_proposition(std::list<Token>& tokens, bool single=true);
-        bool is_open_parenthesis(std::list<Token>& tokens, bool single=true);
-        bool is_close_parenthesis(std::list<Token>& tokens, bool single=true);
-        bool is_unary_operator(std::list<Token>& tokens, bool single=true);
-        bool is_binary_operator(std::list<Token>& tokens, bool single=true);
-
-        bool is_formula(std::list<Token>& tokens, bool single=true);
-        bool is_unary_formula(std::list<Token>& tokens);
-        bool is_binary_formula(std::list<Token>& tokens);
+        static bool is_constant(std::list<Token>& tokens, bool single=true);
+        static bool is_proposition(std::list<Token>& tokens, bool single=true);
+       
+        static bool is_formula(std::list<Token>& tokens, bool single=true);
+        static bool is_unary_formula(std::list<Token>& tokens);
+        static bool is_binary_formula(std::list<Token>& tokens);
 };

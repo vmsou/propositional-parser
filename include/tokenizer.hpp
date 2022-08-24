@@ -34,7 +34,7 @@ class Tokenizer {
     // Attributes
     protected:
         std::size_t line = 0, col = 0;
-        std::stringstream ss;
+        std::istringstream ss;
         KeywordMap* keyword_map;
         std::unordered_map<std::string, std::string> reverse_keyword;
 

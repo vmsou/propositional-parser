@@ -38,7 +38,7 @@ std::string Tokenizer::match_kind(const std::string& text) {
 void Tokenizer::set_text(const std::string& text) {
     this->line = 0;
     this->col = 0;
-    this->ss = std::stringstream{ text };
+    this->ss = std::istringstream{ text };
 }
 
 // Functions
