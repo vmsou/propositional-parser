@@ -78,96 +78,95 @@ PropositionalParser::PropositionalParser(Tokenizer* tokenizer): Parser{ tokenize
 
 // Methods
 bool PropositionalParser::valid(const std::string& expr) {
-    std::deque<Token> tokens = this->tokenizer->tokenize(expr);
+    std::list<Token> tokens = this->tokenizer->tokenize(expr);
     bool accepted = this->is_formula(tokens);
     return accepted;
 }
 
 // Grammar
-bool PropositionalParser::is_constant(std::deque<Token>& tokens, bool single) { 
+bool PropositionalParser::is_constant(std::list<Token>& tokens, bool single) { 
     return Parser::is_terminal(tokens, "Constante", single); 
 }
 
-bool PropositionalParser::is_proposition(std::deque<Token>& tokens, bool single) {
+bool PropositionalParser::is_proposition(std::list<Token>& tokens, bool single) {
     return Parser::is_terminal(tokens, "Proposicao", single);
 }
 
-bool PropositionalParser::is_open_parenthesis(std::deque<Token>& tokens, bool single) {
+bool PropositionalParser::is_open_parenthesis(std::list<Token>& tokens, bool single) {
     return Parser::is_terminal(tokens, "AbreParen", single);
 }
 
-bool PropositionalParser::is_close_parenthesis(std::deque<Token>& tokens, bool single) {
+bool PropositionalParser::is_close_parenthesis(std::list<Token>& tokens, bool single) {
     return Parser::is_terminal(tokens, "FechaParen", single);
 }
 
-bool PropositionalParser::is_unary_operator(std::deque<Token>& tokens, bool single) {
+bool PropositionalParser::is_unary_operator(std::list<Token>& tokens, bool single) {
     return Parser::is_terminal(tokens, "OperadorUnario", single);
 }
 
-bool PropositionalParser::is_binary_operator(std::deque<Token>& tokens, bool single) {
+bool PropositionalParser::is_binary_operator(std::list<Token>& tokens, bool single) {
     return Parser::is_terminal(tokens, "OperadorBinario", single);
 }
 
-bool PropositionalParser::is_formula(std::deque<Token>& tokens, bool single) {
+bool PropositionalParser::is_formula(std::list<Token>& tokens, bool single) {
     /* Formula = Constante|Proposicao|FormulaUnaria|FormulaBinaria */
-    return is_constant(tokens, single) || is_proposition(tokens, single) || is_unary_formula(tokens) || is_binary_formula(tokens);
+    if (tokens.empty()) return false;
+    if (is_constant(tokens, single)) return true;
+    if (is_proposition(tokens, single)) return true;
+    if (is_unary_formula(tokens)) return true;
+    if (is_binary_formula(tokens)) return true;
+    return false;
 }
 
-bool PropositionalParser::is_unary_formula(std::deque<Token>& tokens) {
+bool PropositionalParser::is_unary_formula(std::list<Token>& tokens) {
     /* FormulaUnaria = AbreParen OperadorUnario Formula FechaParen  */
     if (tokens.empty() || tokens.front().kind != "AbreParen") return false;
-    cache.push_front(tokens.front()); tokens.pop_front();
+    std::list<Token> cache;
+    this->push_token(tokens, cache);
 
     if (tokens.empty() || tokens.front().kind != "OperadorUnario") { 
-        for (const Token& t : cache) tokens.push_front(t);
-        cache.clear();
+        this->revert_tokens(tokens, cache);
         return false;
     }
-    cache.push_front(tokens.front()); tokens.pop_front();
+    this->push_token(tokens, cache);
     
     if (!is_formula(tokens, false)) {
-        for (const Token& t : cache) tokens.push_front(t);
-        cache.clear();
+        this->revert_tokens(tokens, cache);
         return false;
     }
     if (tokens.empty() || tokens.front().kind != "FechaParen") {
-        for (const Token& t : cache) tokens.push_front(t);
-        cache.clear();
+        this->revert_tokens(tokens, cache);
         return false;
     };
-    tokens.pop_front();  // FechaParen
-    cache.clear();
+    this->push_token(tokens, cache);
     return true;
 }
 
-bool PropositionalParser::is_binary_formula(std::deque<Token>& tokens) {
+bool PropositionalParser::is_binary_formula(std::list<Token>& tokens) {
     /* FormulaBinaria=AbreParen OperadorBinario Formula Formula FechaParen  */
     if (tokens.empty() || tokens.front().kind != "AbreParen") return false;
-    cache.push_front(tokens.front()); tokens.pop_front();
+    std::list<Token> cache;
+    this->push_token(tokens, cache);
 
     if (tokens.empty() || tokens.front().kind != "OperadorBinario") { 
-        for (const Token& t : cache) tokens.push_front(t);
-        cache.clear();
+        this->revert_tokens(tokens, cache);
         return false;
     }
-    cache.push_front(tokens.front()); tokens.pop_front();
+    this->push_token(tokens, cache);
     
     if (!is_formula(tokens, false)) {
-        for (const Token& t : cache) tokens.push_front(t);
-        cache.clear();
+        this->revert_tokens(tokens, cache);
         return false;
     }
     if (!is_formula(tokens, false)) {
-        for (const Token& t : cache) tokens.push_front(t);
-        cache.clear();
+        this->revert_tokens(tokens, cache);
         return false;
     }
     if (tokens.empty() || tokens.front().kind != "FechaParen") {
-        for (const Token& t : cache) tokens.push_front(t);
-        cache.clear();
+        this->revert_tokens(tokens, cache);
         return false;
     };
-    tokens.pop_front();  // FechaParen
+    this->push_token(tokens, cache);
     cache.clear();
     return true;
 }

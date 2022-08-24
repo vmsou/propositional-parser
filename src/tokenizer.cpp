@@ -17,9 +17,9 @@ Tokenizer::Tokenizer(KeywordMap* keyword_map): keyword_map{ keyword_map } {
 }
 
 // Methods
-std::deque<Token> Tokenizer::tokenize(const std::string& expr) {
+std::list<Token> Tokenizer::tokenize(const std::string& expr) {
     this->set_text(expr);
-    std::deque<Token> tokens;
+    std::list<Token> tokens;
 
     while (!this->is_empty()) {
         Token t = this->get();;
@@ -50,7 +50,7 @@ std::ostream& operator<<(std::ostream& os, const Token& t) {
     return os << "Token(" << t.kind << ", '" << t.text << "', " << t.pos << ")";
 }
 
-std::ostream& operator<<(std::ostream& os, const std::deque<Token>& d) {
+std::ostream& operator<<(std::ostream& os, const std::list<Token>& d) {
     const size_t size = d.size();
     size_t i{};
     os << '[';

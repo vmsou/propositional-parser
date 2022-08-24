@@ -6,7 +6,6 @@ class Parser {
     // Attributes
     protected:
         Tokenizer* tokenizer;
-        std::deque<Token> cache;
 
     // Constructor
     public:
@@ -15,6 +14,9 @@ class Parser {
     // Methods
     public:
         virtual bool valid(const std::string& expr) = 0;
+        static bool is_terminal(std::list<Token>& tokens, const std::string& kind, bool single=true);
 
-        static bool is_terminal(std::deque<Token>& tokens, const std::string& kind, bool single=true);
+    protected:
+        void push_token(std::list<Token>& tokens, std::list<Token>& cache);
+        void revert_tokens(std::list<Token>& tokens, std::list<Token>& cache);
 };

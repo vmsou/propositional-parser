@@ -1,8 +1,8 @@
 /* Analisador Léxico */
 
 #pragma once
-#include <deque>
 #include <functional>
+#include <list>
 #include <iostream>
 #include <map>
 #include <sstream>
@@ -45,7 +45,7 @@ class Tokenizer {
     // Methods
     public:
         virtual Token get() = 0;
-        std::deque<Token> tokenize(const std::string& expr);
+        std::list<Token> tokenize(const std::string& expr);
         std::string match_kind(const std::string& text);
         bool is_empty() const;
     private:
@@ -55,5 +55,5 @@ class Tokenizer {
 // Functions
 std::ostream& operator<<(std::ostream& os, const Position& t);
 std::ostream& operator<<(std::ostream& os, const Token& t);
-std::ostream& operator<<(std::ostream& os, const std::deque<Token>& d);
+std::ostream& operator<<(std::ostream& os, const std::list<Token>& d);
 #endif
