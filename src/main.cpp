@@ -44,12 +44,13 @@ int main() {
         {"Constante", {"T", "F"}},
         {"AbreParen", {"("}},
         {"FechaParen", {")"}},
-        {"OperadorUnario", {"\\neg", "¬"}},
+        {"OperadorUnario", {"\\neg", "\\lnot", "¬"}},
         {"OperadorBinario", {
             "\\lor", "\\land", "\\implies", "\\iff",
             "\\rightarrow", "\\leftrightarrow"
             "∨", "∧", "→", "↔",
-            "||", "&&"
+            "||", "&&",
+            "\\vee", "\\wedge"
             }
         },
     };

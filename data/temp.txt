@@ -1,0 +1,8 @@
+7
+(\neg b))
+(\neg F)
+(\vee a b)
+(\rightarrow a b)
+(\wedge (\rightarrow a b) b)
+(\wedge (\rightarrow a T) b)
+(\neg (\neg (\wedge (\rightarrow a b) b)))

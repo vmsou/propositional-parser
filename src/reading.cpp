@@ -38,5 +38,6 @@ std::istream& operator>>(std::istream& is, TextData& td) {
         td.texts.push_back(line); 
         --size;    
     }
+    if (size) is.setstate(std::ios_base::failbit);
     return is;
 }

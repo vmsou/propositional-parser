@@ -80,7 +80,7 @@ PropositionalParser::PropositionalParser(Tokenizer* tokenizer): Parser{ tokenize
 bool PropositionalParser::valid(const std::string& expr) {
     std::list<Token> tokens = this->tokenizer->tokenize(expr);
     // std::cout << tokens << '\n';
-    bool accepted = this->is_formula(tokens);
+    bool accepted = this->is_formula(tokens) && tokens.empty();
     return accepted;
 }
 
