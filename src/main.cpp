@@ -59,25 +59,32 @@ int main() {
     
     bool is_running = true;
     while (is_running) {
-        std::cout << "Arquivo: ";
-        std::string filename;
-        std::getline(std::cin, filename);
+        std::cout << ">> ";
+        std::string command;
+        std::getline(std::cin, command);
         
-        if (filename.empty()) { is_running = false; continue; }
-        
-        try {
-            td = TextData::load(filename);
-        } catch (const std::runtime_error &err) {
-            std::cout << err.what() << "\n\n";
-            continue;
-        }
+        if (command.empty()) { is_running = false; continue; }
+
+        if (std::filesystem::exists(command)) {    // FILE
+            try {
+                td = TextData::load(command);
+            } catch (const std::runtime_error &err) {
+                std::cout << err.what() << "\n\n";
+                continue;
+            }
     
-        for (const std::string& text : td.texts) {
-            // std::list<Token> tokens = tokenizer.tokenize(text);
-            // std::cout << text << ": " << tokens << '\n';
-            bool result = parser.valid(text);
-            std::cout << text << ": " << (result ? "valido" : "invalido") << '\n';
+            for (const std::string& text : td.texts) {
+                // std::list<Token> tokens = tokenizer.tokenize(text);
+                // std::cout << text << ": " << tokens << '\n';
+                bool result = parser.valid(text);
+                std::cout << text << ": " << (result ? "valido" : "invalido") << '\n';
+            }
+        } else {                                    // EXPRESSION
+            bool result = parser.valid(command);
+            std::cout << command << ": " << (result ? "valido" : "invalido") << '\n';
         }
+        
+        
         std::cout << '\n';
     }
     std::cout << "> Fim: Parser Logica Proposicional" << '\n';
