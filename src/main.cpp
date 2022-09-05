@@ -20,8 +20,8 @@ para cada expressão lógica de entrada contendo ou a palavra valida ou a palavr
 5. FormulaBinaria=AbreParen OperatorBinario Formula Formula FechaParen
 6. AbreParen="("
 7. FechaParen=")"
-8. OperatorUnario="¬"
-9. OperatorBinario="∨"|"∧"|"→"|"↔"
+8. OperadorUnario="¬"
+9. OperadorBinario="∨"|"∧"|"→"|"↔"
  
 Cada  expressão  lógica  avaliada  pode  ter  qualquer  combinação  das  operações  de  negação, 
 conjunção, disjunção, implicação e bi-implicação sem limites na combiação de preposições e operações. 
@@ -35,12 +35,13 @@ programa carregando o arquivo de testes.
 
 #include "main.hpp"
 
+
 int main() {
     std::cout << "> Inicio: Parser Logica Proposicional" << '\n';
     std::cout << "Arquivos: 'data/test.txt', 'data/valido.txt', 'data/invalido.txt', 'data/professor.txt'\n";
     std::cout << "Pressione ENTER (nome do arquivo vazio) para finalizar programa.\n\n";
 
-    KeywordMap keywords{
+    Tokenizer::KeywordMap keywords{
         {"Constante", {"T", "F"}},
         {"AbreParen", {"("}},
         {"FechaParen", {")"}},
@@ -54,10 +55,27 @@ int main() {
             }
         },
     };
+
+    Parser::Grammar rules{
+        Rule("Formula") << RuleRef("Constante") | RuleRef("Proposicao") | RuleRef("FormulaUnaria") | RuleRef("FormulaBinaria"),
+        Rule("Constante") << RuleToken("Constante"),
+        Rule("Proposicao") << RuleToken("Proposicao") ,
+        Rule("FormulaUnaria") << RuleToken("AbreParen") & RuleToken("OperadorUnario") & RuleRef("Formula") & RuleToken("FechaParen"),
+        Rule("FormulaBinaria") << RuleToken("AbreParen") & RuleToken("OperadorBinario") & RuleRef("Formula") & RuleRef("Formula") & RuleToken("FechaParen"),
+        Rule("AbreParen") << RuleToken("AbreParen"),
+        Rule("FechaParen") << RuleToken("FechaParen"),
+        Rule("OperadorUnario") << RuleToken("OperadorUnario"),
+        Rule("OperadorBinario") << RuleToken("OperadorBinario"),
+    };
+
     PropositionalTokenizer tokenizer{ &keywords };
-    PropositionalParser parser{ &tokenizer };
+    PropositionalParser parser{ &tokenizer, &rules };
     TextData td{};
-    
+
+    /* std::list<Token> tokens = tokenizer.tokenize("T T");
+    Rule constant_rule = Rule("Constante 2x") << RuleToken("Constante") & RuleToken("Constante");
+    std::cout << constant_rule.valid(parser, tokens) << '\n'; */
+
     bool is_running = true;
     while (is_running) {
         std::cout << ">> ";
@@ -75,17 +93,13 @@ int main() {
             }
     
             for (const std::string& text : td.texts) {
-                // std::list<Token> tokens = tokenizer.tokenize(text);
-                // std::cout << text << ": " << tokens << '\n';
-                bool result = parser.valid(text);
+                bool result = parser.valid(text, "Formula");
                 std::cout << text << ": " << (result ? "valido" : "invalido") << '\n';
             }
         } else {                                    // EXPRESSION
-            bool result = parser.valid(command);
+            bool result = parser.valid(command, "Formula");
             std::cout << command << ": " << (result ? "valido" : "invalido") << '\n';
         }
-        
-        
         std::cout << '\n';
     }
     std::cout << "> Fim: Parser Logica Proposicional" << '\n';

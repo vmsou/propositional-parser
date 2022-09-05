@@ -13,8 +13,6 @@
 #ifndef TOKENIZER_HPP
 #define TOKENIZER_HPP
 
-using KeywordMap = std::unordered_map<std::string, std::vector<std::string>>;
-
 struct Position { std::size_t line = 0, column = 0; };
 
 struct Token {
@@ -31,6 +29,9 @@ struct Token {
 };
 
 class Tokenizer {
+    // Alias
+    public:
+        using KeywordMap = std::unordered_map<std::string, std::vector<std::string>>;
     // Attributes
     protected:
         std::size_t line = 0, col = 0;
