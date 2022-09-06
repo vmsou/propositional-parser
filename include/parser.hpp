@@ -6,8 +6,6 @@
 
 class Parser;
 
-bool is_terminal(const std::string& kind, std::list<Token>& tokens, std::list<Token>& buffer);
-
 struct RuleElement {
     enum class State { NONE=0, START, AND, OR };
     using callback = std::function<bool(Parser&, std::list<Token>&, std::list<Token>&)>;
@@ -25,6 +23,7 @@ struct RuleElement {
     friend std::ostream& operator<<(std::ostream& os, const RuleElement& re);
 };
 
+RuleElement RuleText(const std::string& name);
 RuleElement RuleToken(const std::string& kind);
 RuleElement RuleRef(const std::string& name);
 
@@ -50,6 +49,10 @@ class Rule {
         Rule& operator<<(RuleElement&& rule);
         Rule& operator&(RuleElement&& rule);
         Rule& operator|(RuleElement&& rule);
+
+        Rule& operator<<(std::string&& text);
+        Rule& operator&(std::string&& text);
+        Rule& operator|(std::string&& text);
 
     // Functions
     public:

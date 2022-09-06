@@ -58,12 +58,12 @@ int main() {
 
      Parser::Grammar rules{
         Rule("Formula") << RuleRef("Constante") | RuleRef("Proposicao") | RuleRef("FormulaUnaria") | RuleRef("FormulaBinaria"),
-        Rule("Constante") << RuleToken("Constante"),
+        Rule("Constante") << "T" | "F",
         Rule("Proposicao") << RuleToken("Proposicao"),
         Rule("FormulaUnaria") << RuleRef("AbreParen") & RuleRef("OperadorUnario") & RuleRef("Formula") & RuleRef("FechaParen"),
         Rule("FormulaBinaria") << RuleRef("AbreParen") & RuleRef("OperadorBinario") & RuleRef("Formula") & RuleRef("Formula") & RuleRef("FechaParen"),
-        Rule("AbreParen") << RuleToken("AbreParen"),
-        Rule("FechaParen") << RuleToken("FechaParen"),
+        Rule("AbreParen") << "(",
+        Rule("FechaParen") << ")",
         Rule("OperadorUnario") << RuleToken("OperadorUnario"),
         Rule("OperadorBinario") << RuleToken("OperadorBinario"),
     };

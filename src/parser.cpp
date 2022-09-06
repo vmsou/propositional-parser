@@ -3,12 +3,6 @@
 #include "parser.hpp"
 
 // Functions
-bool is_terminal(const std::string& kind, std::list<Token>& tokens, std::list<Token>& buffer) {
-    if (tokens.empty() || tokens.front().kind != kind) return false;
-    Parser::push_token(tokens, buffer);
-    return true;
-}
-
 std::ostream& operator<<(std::ostream& os, const RuleElement& re) {
     using State = RuleElement::State;
     std::string op = "";
@@ -17,10 +11,22 @@ std::ostream& operator<<(std::ostream& os, const RuleElement& re) {
     return os << op << re.name;
 }
 
+RuleElement RuleText(const std::string& text) {
+    return RuleElement{ text,
+        [&](Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) {
+            if (tokens.empty() || tokens.front().text != text) return false;
+            Parser::push_token(tokens, buffer);
+            return true;
+        }
+    };
+}
+
 RuleElement RuleToken(const std::string& kind) {
     return RuleElement{ "Token(" + kind + ")",
         [&](Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) {
-            return is_terminal(kind, tokens, buffer);
+            if (tokens.empty() || tokens.front().kind != kind) return false;
+            Parser::push_token(tokens, buffer);
+            return true;
         }
     };
 }
@@ -87,6 +93,10 @@ Rule& Rule::operator|(RuleElement&& rule) {
     this->elements.push_back(rule);
     return *this;
 }
+
+Rule& Rule::operator<<(std::string&& text) { return Rule::operator<<(RuleText(text)); }
+Rule& Rule::operator&(std::string&& text) { return Rule::operator&(RuleText(text)); }
+Rule& Rule::operator|(std::string&& text) { return Rule::operator|(RuleText(text)); }
 
 // Functions
 std::ostream& operator<<(std::ostream& os, const Rule& r) {
