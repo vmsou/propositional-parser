@@ -56,17 +56,21 @@ int main() {
         },
     };
 
-    Parser::Grammar rules{
+     Parser::Grammar rules{
         Rule("Formula") << RuleRef("Constante") | RuleRef("Proposicao") | RuleRef("FormulaUnaria") | RuleRef("FormulaBinaria"),
         Rule("Constante") << RuleToken("Constante"),
-        Rule("Proposicao") << RuleToken("Proposicao") ,
-        Rule("FormulaUnaria") << RuleToken("AbreParen") & RuleToken("OperadorUnario") & RuleRef("Formula") & RuleToken("FechaParen"),
-        Rule("FormulaBinaria") << RuleToken("AbreParen") & RuleToken("OperadorBinario") & RuleRef("Formula") & RuleRef("Formula") & RuleToken("FechaParen"),
+        Rule("Proposicao") << RuleToken("Proposicao"),
+        Rule("FormulaUnaria") << RuleRef("AbreParen") & RuleRef("OperadorUnario") & RuleRef("Formula") & RuleRef("FechaParen"),
+        Rule("FormulaBinaria") << RuleRef("AbreParen") & RuleRef("OperadorBinario") & RuleRef("Formula") & RuleRef("Formula") & RuleRef("FechaParen"),
         Rule("AbreParen") << RuleToken("AbreParen"),
         Rule("FechaParen") << RuleToken("FechaParen"),
         Rule("OperadorUnario") << RuleToken("OperadorUnario"),
         Rule("OperadorBinario") << RuleToken("OperadorBinario"),
     };
+
+    std::cout << "Regras:\n";
+    for (const Rule& rule : rules) std::cout << rule << '\n';
+    std::cout << '\n';
 
     PropositionalTokenizer tokenizer{ &keywords };
     PropositionalParser parser{ &tokenizer, &rules };
@@ -102,5 +106,5 @@ int main() {
         }
         std::cout << '\n';
     }
-    std::cout << "> Fim: Parser Logica Proposicional" << '\n';
+    std::cout << "> Fim: Parser Logica Proposicional" << std::endl;
 }
