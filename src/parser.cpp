@@ -115,6 +115,7 @@ Parser::Parser(Tokenizer* tokenizer, Grammar* grammar): tokenizer{ tokenizer }, 
 // Methods
 bool Parser::valid(const std::string& expr, const std::string& rule) {
     std::list<Token> tokens = this->tokenizer->tokenize(expr);
+    if (tokens.empty()) return false;
     // std::cout << tokens << '\n';
     bool accepted = this->get_rule(rule).valid(*this, tokens) && tokens.empty();
     return accepted;

@@ -22,8 +22,9 @@ std::list<Token> Tokenizer::tokenize(const std::string& expr) {
     std::list<Token> tokens;
 
     while (!this->empty()) {
-        Token t = this->get();;
-        if (t) tokens.push_back(t);
+        Token t = this->get();
+        if (!t) { tokens.clear(); return tokens; } 
+        tokens.push_back(t);
     }
     return tokens;
 }
