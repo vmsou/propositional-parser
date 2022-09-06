@@ -74,7 +74,7 @@ class Parser {
 
     // Methods
     public:
-        virtual bool valid(const std::string& expr, const std::string& rule) = 0;
+        bool valid(const std::string& expr, const std::string& rule);
 
         bool has_rule(const std::string& name) const;
         Rule& get_rule(const std::string& name);

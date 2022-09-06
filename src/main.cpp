@@ -73,12 +73,8 @@ int main() {
     std::cout << '\n';
 
     PropositionalTokenizer tokenizer{ &keywords };
-    PropositionalParser parser{ &tokenizer, &rules };
+    Parser parser{ &tokenizer, &rules };
     TextData td{};
-
-    /* std::list<Token> tokens = tokenizer.tokenize("T T");
-    Rule constant_rule = Rule("Constante 2x") << RuleToken("Constante") & RuleToken("Constante");
-    std::cout << constant_rule.valid(parser, tokens) << '\n'; */
 
     bool is_running = true;
     while (is_running) {

@@ -65,30 +65,8 @@ bool Rule::valid(Parser& parser, std::list<Token>& tokens, std::list<Token>& sha
 }
 
 bool Rule::valid(Parser& parser, std::list<Token>& tokens) { 
-    using State = RuleElement::State;
-
     std::list<Token> shared_buffer;
-    bool valid = false;
-    for (const RuleElement& r : this->elements) {
-        if (r.state == RuleElement::State::START) {
-            valid = r(parser, tokens, shared_buffer);
-        }    
-        else if (r.state == State::OR) {
-            std::list<Token> temp_buffer;
-            if (valid || r(parser, tokens, temp_buffer)) return true;
-            else {
-                valid = false;
-                Parser::revert_tokens(tokens, temp_buffer);
-            }
-        } 
-        else if (r.state == State::AND) {
-            if (!r(parser, tokens, shared_buffer)) { 
-                Parser::revert_tokens(tokens, shared_buffer);
-                return false;
-            }
-        }
-    }
-    return valid;
+    return this->valid(parser, tokens, shared_buffer);
 }
 
 // Operators
@@ -125,6 +103,13 @@ Parser::Parser(Tokenizer* tokenizer, Grammar* grammar): tokenizer{ tokenizer }, 
 }
 
 // Methods
+bool Parser::valid(const std::string& expr, const std::string& rule) {
+    std::list<Token> tokens = this->tokenizer->tokenize(expr);
+    // std::cout << tokens << '\n';
+    bool accepted = this->get_rule(rule).valid(*this, tokens) && tokens.empty();
+    return accepted;
+}
+
 bool Parser::has_rule(const std::string& name) const {
     if (this->rules.find(name) != this->rules.end()) return true;
     return false;
