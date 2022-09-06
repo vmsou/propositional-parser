@@ -13,12 +13,26 @@ struct RuleElement {
     State state = State::START;
     std::string name;
     callback func;
+    int min=1, max=1;
     
-    RuleElement(const std::string& name, callback func): name{ name }, func{ func } {}
+    inline RuleElement(const std::string& name, callback func, int qty=1): name{ name }, func{ func }, min{ qty }, max{ qty } {}
+    inline RuleElement(const std::string& name, callback func, int min, int max): name{ name }, func{ func }, min{ min }, max{ max } {}
 
     inline bool operator()(Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) const { 
-        return this->func(parser, tokens, buffer); 
+        int valid = 0;
+        
+        while (valid < this->max) {
+            if (!this->func(parser, tokens, buffer)) { 
+                if (valid >= this->min) break;
+                return false; 
+            }
+            ++valid;
+        }
+        return valid >= this->min;
     }
+
+    RuleElement operator()(int qty) { return RuleElement{ this->name, this->func, qty }; }
+    RuleElement operator()(int min, int max) { return RuleElement{ this->name, this->func, min, max }; }
 
     friend std::ostream& operator<<(std::ostream& os, const RuleElement& re);
 };

@@ -68,6 +68,7 @@ int main() {
         Rule("OperadorBinario") << RuleToken("OperadorBinario"),
     };
 
+
     std::cout << "Regras:\n";
     for (const Rule& rule : rules) std::cout << rule << '\n';
     std::cout << '\n';

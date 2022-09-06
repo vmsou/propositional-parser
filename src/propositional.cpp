@@ -12,7 +12,7 @@ Token PropositionalTokenizer::get() {
     std::string text;
     char c = '\0';
     bool match = false;
-    bool start_proposition, end_proposition = false;
+    bool start_proposition = false, end_proposition = false;
     bool is_proposition = true;
 
     while (!match) {
