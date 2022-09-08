@@ -11,6 +11,27 @@ std::ostream& operator<<(std::ostream& os, const RuleElement& re) {
     return os << op << re.name;
 }
 
+/* RuleElement:: */
+// Constructors
+RuleElement::RuleElement(const std::string& name, callback func, int qty): name{ name }, func{ func }, min{ qty }, max{ qty } {}
+RuleElement::RuleElement(const std::string& name, callback func, int min, int max): name{ name }, func{ func }, min{ min }, max{ max } {}
+
+// Operators
+RuleElement RuleElement::operator()(int qty) { return RuleElement(this->name, this->func, qty); }
+RuleElement RuleElement::operator()(int min, int max) { return RuleElement{ this->name, this->func, min, max }; }
+
+bool RuleElement::operator()(Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) const {
+    int valid = 0;
+    while (valid < this->max) {
+        if (!this->func(parser, tokens, buffer)) { 
+            if (valid >= this->min) break;
+            return false; 
+        }
+        ++valid;
+    }
+    return valid >= this->min;
+}
+
 RuleElement RuleText(const std::string& text) {
     return RuleElement{ text,
         [&](Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) {

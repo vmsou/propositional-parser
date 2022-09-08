@@ -30,14 +30,10 @@ Para validar seu trabalho, você deve incluir no repl.it, no mínimo três arqui
 
 ## Como executa-lo
 Se você ter acesso a um terminal
+
 ```bash
-cmake --build ./build --config Debug --target all -j 14 --
-```
-ou
-```bash
-mkdir build
-cmake -S ./ -B ./build -G "MinGW Makefiles"
-cmake --build ./build/
+mkdir build && cmake -S ./ -B ./build -G "MinGW Makefiles" && cmake --build ./build/
+
 .\build\PropositionalParser.exe
 ```
 
