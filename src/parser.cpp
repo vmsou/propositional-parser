@@ -72,8 +72,8 @@ std::istream& operator>>(std::istream& is, RuleWrapper& re) {
 // Constructors
 
 // Operators
-RuleWrapper RuleWrapper::operator()(int qty) { return RuleWrapper(this->element, qty); }
-RuleWrapper RuleWrapper::operator()(int min, int max) { return RuleWrapper{ this->element, min, max }; }
+RuleWrapper RuleWrapper::operator()(int qty) { return RuleWrapper(this->state, qty, qty, this->element); }
+RuleWrapper RuleWrapper::operator()(int min, int max) { return RuleWrapper(this->state, min, max, this->element); }
 
 bool RuleWrapper::operator()(Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) const {
     int valid = 0;

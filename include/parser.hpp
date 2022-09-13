@@ -12,7 +12,7 @@ struct RuleElement {
     virtual ~RuleElement() {}
     virtual bool operator()(Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) const = 0;
 
-    virtual RuleElement* clone() const = 0;
+    virtual std::unique_ptr<RuleElement> clone() const = 0;
     virtual std::string stringify() const = 0;
 };
 
@@ -22,7 +22,7 @@ struct RuleText : public RuleElement {
     RuleText(const std::string& text);
 
     bool operator()(Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) const override;
-    RuleElement* clone() const override { return new RuleText(this->text); }
+    std::unique_ptr<RuleElement> clone() const override { return std::make_unique<RuleText>(this->text); }
     std::string stringify() const override;
 };
 
@@ -32,7 +32,7 @@ struct RuleToken : public RuleElement {
     RuleToken(const std::string& kind);
 
     bool operator()(Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) const override;
-    RuleElement* clone() const override { return new RuleToken(this->kind); }
+    std::unique_ptr<RuleElement> clone() const override { return std::make_unique<RuleToken>(this->kind); }
     std::string stringify() const override;
 };
 
@@ -42,7 +42,7 @@ struct RuleRef : public RuleElement {
     RuleRef(const std::string& name);
 
     bool operator()(Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) const override;
-    RuleElement* clone() const override { return new RuleRef(this->name); }
+    std::unique_ptr<RuleElement> clone() const override { return std::make_unique<RuleRef>(this->name); }
     std::string stringify() const override;
 };
 
@@ -52,28 +52,30 @@ struct RuleWrapper {
     // Attributes
     State state = State::START;
     int min, max;
-    RuleElement* element;
+    std::unique_ptr<RuleElement> element;
 
     // Constructors
     RuleWrapper(): min{ 1 }, max{ 1 }, element{ nullptr } {}
     RuleWrapper(const RuleWrapper& rw): state{ rw.state }, min{ rw.min }, max{ rw.max }, element{ rw.element->clone() } {}
-    RuleWrapper(RuleWrapper&& rw): state{ rw.state }, min{ rw.min }, max{ rw.max }, element{ rw.element } { rw.element = nullptr; }
+    RuleWrapper(RuleWrapper&& rw): state{ rw.state }, min{ rw.min }, max{ rw.max }, element{ std::move(rw.element) } {}
 
+    RuleWrapper(State state, int min, int max, std::unique_ptr<RuleElement>& element): state{ state }, min{ min }, max{ max }, element{ element->clone() } {}
     RuleWrapper(RuleElement* element): min{ 1 }, max{ 1 }, element{ element } {}
-    RuleWrapper(RuleElement* element, int qty): min{ qty }, max{ qty }, element{ element } {}
-    RuleWrapper(RuleElement* element, int min, int max): min{ min }, max{ max }, element{ element } {}
-
-    ~RuleWrapper() { delete this->element; }
 
     // Operators
-    RuleWrapper& operator=(const RuleWrapper& rw) = default;
-    RuleWrapper& operator=(RuleWrapper&& rw) {
+    RuleWrapper& operator=(const RuleWrapper& rw) {
         if (this != &rw) {
-            delete this->element;
             this->state = rw.state;
             this->min = rw.min; this->max = rw.max;
-            this->element = rw.element;
-            rw.element = nullptr;
+            this->element = rw.element->clone();
+        }
+        return *this;
+    };
+    RuleWrapper& operator=(RuleWrapper&& rw) {
+        if (this != &rw) {
+            this->state = rw.state;
+            this->min = rw.min; this->max = rw.max;
+            this->element = std::move(rw.element);
         }
         return *this;
     }
