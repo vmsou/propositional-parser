@@ -149,27 +149,35 @@ Rule& Rule::operator|(std::string& text) { return Rule::operator|(RuleWrapper(ne
 
 // Functions
 std::ostream& operator<<(std::ostream& os, const Rule& r) {
-    os << '<' << r.name() << '>' << "::=";
+    os << '<' << r.name() << '>' << "::= ";
     for (const RuleWrapper& rw : r.elements) os << rw; 
     return os;
 }
 
 std::istream& operator>>(std::istream& is, Rule& r) {
+    char c;
+
+    // Remove Leading Whitespace
+    is >> std::ws >> c;
+    if (!is) return is;
+    is.putback(c);          
+
+    // Get Rule Name
     std::string rule_name;
-    is >> rule_name;
+    while (is.get(c) && c != '=') rule_name += c;
     if (!is) return is;
 
-    char equal;
-    is >> equal;
-    if (!is) return is;
-    if (equal != '=') throw std::runtime_error("Esperava '=' em vez de '" + std::string(1, equal) + "'.");
+    // rstrip
+    rule_name = rule_name.substr(0, rule_name.find_last_not_of(" \n\r\t\f\v") + 1);
 
+    if (c != '=') throw std::runtime_error("Esperava '=' em vez de '" + std::string(1, c) + "'.");
+
+    // Build Rule
     r = Rule(rule_name);
     RuleWrapper re;
     if (!(is >> re)) throw std::runtime_error("Elemento de regra invalido.");;
     r << re;
 
-    char c;
     while (is >> c && c != '.') {
         if (c == '|') {
             if (!(is >> re)) return is;
@@ -217,6 +225,13 @@ void Parser::push_token(std::list<Token>& tokens, std::list<Token>& buffer) {
 void Parser::revert_tokens(std::list<Token>& tokens, std::list<Token>& buffer) {
     for (const Token& t : buffer) tokens.push_front(t);
     buffer.clear();
+}
+
+Parser::Grammar Parser::text_to_rules(const std::string& text) {
+    std::istringstream iss{ text };
+    Parser::Grammar rules;
+    iss >> rules;
+    return rules;
 }
 
 // Functions

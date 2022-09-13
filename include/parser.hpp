@@ -57,7 +57,7 @@ struct RuleWrapper {
     // Constructors
     RuleWrapper(): min{ 1 }, max{ 1 }, element{ nullptr } {}
     RuleWrapper(const RuleWrapper& rw): state{ rw.state }, min{ rw.min }, max{ rw.max }, element{ rw.element->clone() } {}
-    RuleWrapper(RuleWrapper&& rw): state{ rw.state }, min{ rw.min }, max{ rw.max }, element{ std::move(rw.element) } {}
+    RuleWrapper(RuleWrapper&& rw): state{ rw.state }, min{ rw.min }, max{ rw.max }, element{ rw.element.release() } {}
 
     RuleWrapper(State state, int min, int max, std::unique_ptr<RuleElement>& element): state{ state }, min{ min }, max{ max }, element{ element->clone() } {}
     RuleWrapper(RuleElement* element): min{ 1 }, max{ 1 }, element{ element } {}
@@ -75,7 +75,7 @@ struct RuleWrapper {
         if (this != &rw) {
             this->state = rw.state;
             this->min = rw.min; this->max = rw.max;
-            this->element = std::move(rw.element);
+            this->element.reset(rw.element.release());
         }
         return *this;
     }
@@ -163,6 +163,7 @@ class Parser {
     public:
         static void push_token(std::list<Token>& tokens, std::list<Token>& buffer);
         static void revert_tokens(std::list<Token>& tokens, std::list<Token>& buffer);
+        static Parser::Grammar text_to_rules(const std::string& text);
 };
 
 

@@ -69,7 +69,8 @@ int main() {
         Rule("OperadorBinario") << rule_token("OperadorBinario"),
     }; */
 
-    std::string rules_text = R"!(
+    Parser::Grammar rules = Parser::text_to_rules(
+        R"!(
         Formula = Constante | Proposicao | FormulaUnaria | FormulaBinaria .
         Proposicao = :Proposicao: .
         Constante = "T" | "F" .
@@ -78,12 +79,9 @@ int main() {
         AbreParen = "(" .
         FechaParen = ")" .
         OperadorUnario = :OperadorUnario: .
-        OperadorBinario = :OperadorBinario: .
-    )!";
-    
-    std::istringstream iss{ rules_text };
-    Parser::Grammar rules;
-    iss >> rules;
+        OperadorBinario = :OperadorBinario:  .
+        )!" 
+    );
 
     std::cout << "Regras:\n";
     for (const Rule& rule : rules) std::cout << rule << '\n';
