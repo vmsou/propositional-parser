@@ -2,39 +2,100 @@
 
 #pragma once
 #include <functional>
+#include <ios>
+#include <memory>
 #include "tokenizer.hpp"
 
 class Parser;
 
 struct RuleElement {
-    enum class State { NONE=0, START, AND, OR };
-    using callback = std::function<bool(Parser&, std::list<Token>&, std::list<Token>&)>;
+    virtual ~RuleElement() {}
+    virtual bool operator()(Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) const = 0;
 
-    State state = State::START;
+    virtual RuleElement* clone() const = 0;
+    virtual std::string stringify() const = 0;
+};
+
+struct RuleText : public RuleElement {
+    std::string text;
+
+    RuleText(const std::string& text);
+
+    bool operator()(Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) const override;
+    RuleElement* clone() const override { return new RuleText(this->text); }
+    std::string stringify() const override;
+};
+
+struct RuleToken : public RuleElement {
+    std::string kind;
+
+    RuleToken(const std::string& kind);
+
+    bool operator()(Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) const override;
+    RuleElement* clone() const override { return new RuleToken(this->kind); }
+    std::string stringify() const override;
+};
+
+struct RuleRef : public RuleElement {
     std::string name;
-    callback func;
-    int min, max;
-    
-    RuleElement(const std::string& name, callback func, int qty=1);
-    RuleElement(const std::string& name, callback func, int min, int max);
 
-    RuleElement operator()(int qty);
-    RuleElement operator()(int min, int max);
+    RuleRef(const std::string& name);
+
+    bool operator()(Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) const override;
+    RuleElement* clone() const override { return new RuleRef(this->name); }
+    std::string stringify() const override;
+};
+
+struct RuleWrapper {
+    enum class State { NONE=0, START, AND, OR };
+
+    // Attributes
+    State state = State::START;
+    int min, max;
+    RuleElement* element;
+
+    // Constructors
+    RuleWrapper(): min{ 1 }, max{ 1 }, element{ nullptr } {}
+    RuleWrapper(const RuleWrapper& rw): state{ rw.state }, min{ rw.min }, max{ rw.max }, element{ rw.element->clone() } {}
+    RuleWrapper(RuleWrapper&& rw): state{ rw.state }, min{ rw.min }, max{ rw.max }, element{ rw.element } { rw.element = nullptr; }
+
+    RuleWrapper(RuleElement* element): min{ 1 }, max{ 1 }, element{ element } {}
+    RuleWrapper(RuleElement* element, int qty): min{ qty }, max{ qty }, element{ element } {}
+    RuleWrapper(RuleElement* element, int min, int max): min{ min }, max{ max }, element{ element } {}
+
+    ~RuleWrapper() { delete this->element; }
+
+    // Operators
+    RuleWrapper& operator=(const RuleWrapper& rw) = default;
+    RuleWrapper& operator=(RuleWrapper&& rw) {
+        if (this != &rw) {
+            delete this->element;
+            this->state = rw.state;
+            this->min = rw.min; this->max = rw.max;
+            this->element = rw.element;
+            rw.element = nullptr;
+        }
+        return *this;
+    }
+
+    RuleWrapper operator()(int qty);
+    RuleWrapper operator()(int min, int max);
 
     bool operator()(Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) const;
 
-    friend std::ostream& operator<<(std::ostream& os, const RuleElement& re);
+    friend std::ostream& operator<<(std::ostream& os, const RuleWrapper& rw);
 };
 
-RuleElement RuleText(const std::string& name);
-RuleElement RuleToken(const std::string& kind);
-RuleElement RuleRef(const std::string& name);
+RuleWrapper rule_text(const std::string& text);
+RuleWrapper rule_token(const std::string& kind);
+RuleWrapper rule_ref(const std::string& name);
+
 
 class Rule {
     // Attributes
-    private:
+    public:
         std::string _name;
-        std::vector<RuleElement> elements;
+        std::vector<RuleWrapper> elements;
 
     // Constructors
     public:
@@ -49,17 +110,28 @@ class Rule {
 
     // Operators
     public:
-        Rule& operator<<(RuleElement&& rule);
-        Rule& operator&(RuleElement&& rule);
-        Rule& operator|(RuleElement&& rule);
+        // Reference
+        Rule& operator<<(RuleWrapper& rule);
+        Rule& operator&(RuleWrapper& rule);
+        Rule& operator|(RuleWrapper& rule);
 
-        Rule& operator<<(std::string&& text);
-        Rule& operator&(std::string&& text);
-        Rule& operator|(std::string&& text);
+        Rule& operator<<(std::string& text);
+        Rule& operator&(std::string& text);
+        Rule& operator|(std::string& text);
+
+        // R-value
+        Rule& operator<<(RuleWrapper&& rule) { return this->operator<<(rule); }
+        Rule& operator&(RuleWrapper&& rule) { return this->operator&(rule); }
+        Rule& operator|(RuleWrapper&& rule) { return this->operator|(rule); }
+
+        Rule& operator<<(std::string&& text) { return this->operator<<(text); }
+        Rule& operator&(std::string&& text) { return this->operator&(text); }
+        Rule& operator|(std::string&& text) { return this->operator|(text); }
 
     // Functions
     public:
         friend std::ostream& operator<<(std::ostream& os, const Rule& r);
+        friend std::istream& operator>>(std::istream& is, Rule& r);
 };
 
 class Parser {
@@ -90,3 +162,7 @@ class Parser {
         static void push_token(std::list<Token>& tokens, std::list<Token>& buffer);
         static void revert_tokens(std::list<Token>& tokens, std::list<Token>& buffer);
 };
+
+
+// Functions
+std::istream& operator>>(std::istream& is, Parser::Grammar& rules);

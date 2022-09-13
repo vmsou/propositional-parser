@@ -35,6 +35,7 @@ programa carregando o arquivo de testes.
 
 #include "main.hpp"
 
+Rule gen_constante() { return Rule("Constante") << rule_text("T") | rule_text("F"); }
 
 int main() {
     std::cout << "> Inicio: Parser Logica Proposicional" << '\n';
@@ -56,18 +57,33 @@ int main() {
         },
     };
 
-     Parser::Grammar rules{
-        Rule("Formula") << RuleRef("Constante") | RuleRef("Proposicao") | RuleRef("FormulaUnaria") | RuleRef("FormulaBinaria"),
+    /* Parser::Grammar rules{
+        Rule("Formula") << rule_ref("Constante") | rule_ref("Proposicao") | rule_ref("FormulaUnaria") | rule_ref("FormulaBinaria"),
         Rule("Constante") << "T" | "F",
-        Rule("Proposicao") << RuleToken("Proposicao"),
-        Rule("FormulaUnaria") << RuleRef("AbreParen") & RuleRef("OperadorUnario") & RuleRef("Formula") & RuleRef("FechaParen"),
-        Rule("FormulaBinaria") << RuleRef("AbreParen") & RuleRef("OperadorBinario") & RuleRef("Formula") & RuleRef("Formula") & RuleRef("FechaParen"),
+        Rule("Proposicao") << rule_token("Proposicao"),
+        Rule("FormulaUnaria") << rule_ref("AbreParen") & rule_ref("OperadorUnario") & rule_ref("Formula") & rule_ref("FechaParen"),
+        Rule("FormulaBinaria") << rule_ref("AbreParen") & rule_ref("OperadorBinario") & rule_ref("Formula") & rule_ref("Formula") & rule_ref("FechaParen"),
         Rule("AbreParen") << "(",
         Rule("FechaParen") << ")",
-        Rule("OperadorUnario") << RuleToken("OperadorUnario"),
-        Rule("OperadorBinario") << RuleToken("OperadorBinario"),
-    };
+        Rule("OperadorUnario") << rule_token("OperadorUnario"),
+        Rule("OperadorBinario") << rule_token("OperadorBinario"),
+    }; */
 
+    std::string rules_text = R"!(
+        Formula = Constante | Proposicao | FormulaUnaria | FormulaBinaria .
+        Proposicao = :Proposicao: .
+        Constante = "T" | "F" .
+        FormulaUnaria = AbreParen OperadorUnario Formula FechaParen .
+        FormulaBinaria = AbreParen OperadorBinario Formula Formula FechaParen .
+        AbreParen = "(" .
+        FechaParen = ")" .
+        OperadorUnario = :OperadorUnario: .
+        OperadorBinario = :OperadorBinario: .
+    )!";
+    
+    std::istringstream iss{ rules_text };
+    Parser::Grammar rules;
+    iss >> rules;
 
     std::cout << "Regras:\n";
     for (const Rule& rule : rules) std::cout << rule << '\n';
@@ -88,7 +104,7 @@ int main() {
         if (std::filesystem::exists(command)) {    // FILE
             try {
                 td = TextData::load(command);
-            } catch (const std::runtime_error &err) {
+            } catch (const std::runtime_error& err) {
                 std::cout << err.what() << "\n\n";
                 continue;
             }

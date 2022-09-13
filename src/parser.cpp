@@ -3,27 +3,82 @@
 #include "parser.hpp"
 
 // Functions
-std::ostream& operator<<(std::ostream& os, const RuleElement& re) {
-    using State = RuleElement::State;
-    std::string op = "";
-    if (re.state == State::AND) op = " ";
-    else if (re.state == State::OR) op = "|";
-    return os << op << re.name;
+RuleWrapper rule_text(const std::string& text) { return RuleWrapper(new RuleText(text)); }
+RuleWrapper rule_token(const std::string& kind) { return RuleWrapper(new RuleToken(kind)); }
+RuleWrapper rule_ref(const std::string& name) { return RuleWrapper(new RuleRef(name)); }
+
+/* RuleText */
+RuleText::RuleText(const std::string& text): text{ text } {};
+
+bool RuleText::operator()(Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) const {
+    if (tokens.empty() || tokens.front().text != this->text) return false;
+    Parser::push_token(tokens, buffer);
+    return true;
 }
 
-/* RuleElement:: */
+std::string RuleText::stringify() const { return "\"" + this->text + "\""; }
+
+/* RuleToken */
+RuleToken::RuleToken(const std::string& kind): kind{ kind } {};
+
+bool RuleToken::operator()(Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) const {
+    if (tokens.empty() || tokens.front().kind != this->kind) return false;
+    Parser::push_token(tokens, buffer);
+    return true;
+}
+
+std::string RuleToken::stringify() const { return ":" + this->kind + ":"; }
+
+/* RuleRef */
+RuleRef::RuleRef(const std::string& name): name{ name } {};
+
+bool RuleRef::operator()(Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) const {
+    return parser.get_rule(name).valid(parser, tokens, buffer);
+}
+
+std::string RuleRef::stringify() const { return "<" + this->name + ">"; }
+
+// Functions
+std::ostream& operator<<(std::ostream& os, const RuleWrapper& rw) {
+    using State = RuleWrapper::State;
+    std::string op = "";
+    if (rw.state == State::AND) op = " ";
+    else if (rw.state == State::OR) op = "|";
+    return os << op << rw.element->stringify();
+}
+
+std::istream& operator>>(std::istream& is, RuleWrapper& re) {
+    char c;
+    if (!(is >> c)) throw std::runtime_error("Regra não encontrada.");
+    std::string name;
+    if (c == '"') {
+        while (is >> c && c != '"') name += c;
+        if (c != '"') throw std::runtime_error("Fechamento de Texto '\"' não encontrado.");
+        re = rule_text(name);
+    } else if (c == ':') {
+        while (is >> c && c != ':') name += c;
+        if (c != ':') throw std::runtime_error("Fechamento de Token ':' não encontrado.");
+        re = rule_token(name);
+    } else {
+        is.putback(c);
+        if (!(is >> name)) throw std::runtime_error("Regra de referência não encontrada.");
+        if (name.back() == '.' || name.back() == '|') {is.putback(name.back()); name.pop_back(); }
+        re = rule_ref(name);
+    }
+    return is;
+}
+
+/* RuleWrapper:: */
 // Constructors
-RuleElement::RuleElement(const std::string& name, callback func, int qty): name{ name }, func{ func }, min{ qty }, max{ qty } {}
-RuleElement::RuleElement(const std::string& name, callback func, int min, int max): name{ name }, func{ func }, min{ min }, max{ max } {}
 
 // Operators
-RuleElement RuleElement::operator()(int qty) { return RuleElement(this->name, this->func, qty); }
-RuleElement RuleElement::operator()(int min, int max) { return RuleElement{ this->name, this->func, min, max }; }
+RuleWrapper RuleWrapper::operator()(int qty) { return RuleWrapper(this->element, qty); }
+RuleWrapper RuleWrapper::operator()(int min, int max) { return RuleWrapper{ this->element, min, max }; }
 
-bool RuleElement::operator()(Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) const {
+bool RuleWrapper::operator()(Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) const {
     int valid = 0;
     while (valid < this->max) {
-        if (!this->func(parser, tokens, buffer)) { 
+        if (!this->element->operator()(parser, tokens, buffer)) { 
             if (valid >= this->min) break;
             return false; 
         }
@@ -32,45 +87,17 @@ bool RuleElement::operator()(Parser& parser, std::list<Token>& tokens, std::list
     return valid >= this->min;
 }
 
-RuleElement RuleText(const std::string& text) {
-    return RuleElement{ text,
-        [&](Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) {
-            if (tokens.empty() || tokens.front().text != text) return false;
-            Parser::push_token(tokens, buffer);
-            return true;
-        }
-    };
-}
-
-RuleElement RuleToken(const std::string& kind) {
-    return RuleElement{ "Token(" + kind + ")",
-        [&](Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) {
-            if (tokens.empty() || tokens.front().kind != kind) return false;
-            Parser::push_token(tokens, buffer);
-            return true;
-        }
-    };
-}
-
-RuleElement RuleRef(const std::string& name) {
-    return RuleElement{ "<" + name + ">",
-        [&](Parser& parser, std::list<Token>& tokens, std::list<Token>& buffer) {
-            return parser.get_rule(name).valid(parser, tokens, buffer);
-        }
-    };
-}
-
 /* Rule */
 // Constructors
 Rule::Rule(const std::string& name): _name{ name } {}
 
 // Methods
 bool Rule::valid(Parser& parser, std::list<Token>& tokens, std::list<Token>& shared_buffer) { 
-    using State = RuleElement::State;
+    using State = RuleWrapper::State;
 
     bool valid = false;
-    for (const RuleElement& r : this->elements) {
-        if (r.state == RuleElement::State::START) {
+    for (const RuleWrapper& r : this->elements) {
+        if (r.state == RuleWrapper::State::START) {
             valid = r(parser, tokens, shared_buffer);
         }    
         else if (r.state == State::OR) {
@@ -97,35 +124,65 @@ bool Rule::valid(Parser& parser, std::list<Token>& tokens) {
 }
 
 // Operators
-Rule& Rule::operator<<(RuleElement&& rule) {
-    rule.state = RuleElement::State::START;
+Rule& Rule::operator<<(RuleWrapper& rule) {
+    rule.state = RuleWrapper::State::START;
     this->elements.push_back(rule);
     return *this;
 }
 
-Rule& Rule::operator&(RuleElement&& rule) {
-    rule.state = RuleElement::State::AND;
+Rule& Rule::operator&(RuleWrapper& rule) {
+    rule.state = RuleWrapper::State::AND;
     this->elements.push_back(rule);
     return *this;
 }
 
-Rule& Rule::operator|(RuleElement&& rule) {
-    rule.state = RuleElement::State::OR;
+Rule& Rule::operator|(RuleWrapper& rule) {
+    rule.state = RuleWrapper::State::OR;
     this->elements.push_back(rule);
     return *this;
 }
 
-Rule& Rule::operator<<(std::string&& text) { return Rule::operator<<(RuleText(text)); }
-Rule& Rule::operator&(std::string&& text) { return Rule::operator&(RuleText(text)); }
-Rule& Rule::operator|(std::string&& text) { return Rule::operator|(RuleText(text)); }
+Rule& Rule::operator<<(std::string& text) { return Rule::operator<<(RuleWrapper(new RuleText(text))); }
+Rule& Rule::operator&(std::string& text) { return Rule::operator&(RuleWrapper(new RuleText(text))); }
+Rule& Rule::operator|(std::string& text) { return Rule::operator|(RuleWrapper(new RuleText(text))); }
+
 
 // Functions
 std::ostream& operator<<(std::ostream& os, const Rule& r) {
     os << '<' << r.name() << '>' << "::=";
-    for (const RuleElement& re : r.elements) os << re; 
+    for (const RuleWrapper& rw : r.elements) os << rw; 
     return os;
 }
 
+std::istream& operator>>(std::istream& is, Rule& r) {
+    std::string rule_name;
+    is >> rule_name;
+    if (!is) return is;
+
+    char equal;
+    is >> equal;
+    if (!is) return is;
+    if (equal != '=') throw std::runtime_error("Esperava '=' em vez de '" + std::string(1, equal) + "'.");
+
+    r = Rule(rule_name);
+    RuleWrapper re;
+    if (!(is >> re)) throw std::runtime_error("Elemento de regra invalido.");;
+    r << re;
+
+    char c;
+    while (is >> c && c != '.') {
+        if (c == '|') {
+            if (!(is >> re)) return is;
+            r | re;
+        } else {
+            is.putback(c);
+            if (!(is >> re)) return is;
+            r & re;
+        }
+    }
+    if (c != '.') throw std::runtime_error("Ponto final da regra em vez de '" + std::string(1, c) + "'.");
+    return is;
+}
 
 /* Parser */
 // Constructor
@@ -138,7 +195,8 @@ bool Parser::valid(const std::string& expr, const std::string& rule) {
     std::list<Token> tokens = this->tokenizer->tokenize(expr);
     if (tokens.empty()) return false;
     // std::cout << tokens << '\n';
-    bool accepted = this->get_rule(rule).valid(*this, tokens) && tokens.empty();
+    Rule& r = this->get_rule(rule);
+    bool accepted = r.valid(*this, tokens) && tokens.empty();
     return accepted;
 }
 
@@ -147,7 +205,10 @@ bool Parser::has_rule(const std::string& name) const {
     return false;
 }
 
-Rule& Parser::get_rule(const std::string& name) { return this->rules.at(name); }
+Rule& Parser::get_rule(const std::string& name) {
+    if (this->rules.find(name) == this->rules.end()) throw std::runtime_error{ "Regra: " + name + " não exsite." };
+    return this->rules.at(name); 
+}
 
 void Parser::push_token(std::list<Token>& tokens, std::list<Token>& buffer) {
     buffer.push_front(tokens.front()); tokens.pop_front();
@@ -156,4 +217,11 @@ void Parser::push_token(std::list<Token>& tokens, std::list<Token>& buffer) {
 void Parser::revert_tokens(std::list<Token>& tokens, std::list<Token>& buffer) {
     for (const Token& t : buffer) tokens.push_front(t);
     buffer.clear();
+}
+
+// Functions
+std::istream& operator>>(std::istream& is, Parser::Grammar& rules) {
+    Rule r;
+    while (is >> r) rules.push_back(r);
+    return is;
 }
