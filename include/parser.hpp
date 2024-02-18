@@ -163,7 +163,6 @@ class Parser {
     public:
         static void push_token(std::list<Token>& tokens, std::list<Token>& buffer);
         static void revert_tokens(std::list<Token>& tokens, std::list<Token>& buffer);
-        static Parser::Grammar text_to_rules(const std::string& text);
 };
 
 

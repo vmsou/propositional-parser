@@ -1,4 +1,4 @@
-#include "propositional.hpp"
+#include "include/propositional.hpp"
 
 /* PropositionalTokenizer:: */
 

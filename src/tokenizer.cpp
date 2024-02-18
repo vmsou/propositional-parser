@@ -1,6 +1,6 @@
 /* Analisador Léxico */
 
-#include "tokenizer.hpp"
+#include "include/tokenizer.hpp"
 
 /* Token */
 // Constructors
