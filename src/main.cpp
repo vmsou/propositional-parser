@@ -33,7 +33,7 @@ para validar seu trabalho. Para isso, caberá ao professor incluir o arquivo no 
 programa carregando o arquivo de testes. 
 */
 
-#include "main.hpp"
+#include "include/main.hpp"
 
 Rule gen_constante() { return Rule("Constante") << rule_text("T") | rule_text("F"); }
 
@@ -69,7 +69,8 @@ int main() {
         Rule("OperadorBinario") << rule_token("OperadorBinario"),
     }; */
 
-    Parser::Grammar rules = Parser::text_to_rules(
+    /*
+    std::istringstream iss{ 
         R"!(
         Formula = Constante | Proposicao | FormulaUnaria | FormulaBinaria .
         Proposicao = :Proposicao: .
@@ -81,7 +82,12 @@ int main() {
         OperadorUnario = :OperadorUnario: .
         OperadorBinario = :OperadorBinario:  .
         )!" 
-    );
+    }; 
+    */
+
+    std::ifstream file{ "data/rules.txt" };
+    Parser::Grammar rules;
+    file >> rules;
 
     std::cout << "Regras:\n";
     for (const Rule& rule : rules) std::cout << rule << '\n';

@@ -1,0 +1,9 @@
+Formula = Constante | Proposicao | FormulaUnaria | FormulaBinaria .
+Proposicao = :Proposicao: .
+Constante = "T" | "F" .
+FormulaUnaria = AbreParen OperadorUnario Formula FechaParen .
+FormulaBinaria = AbreParen OperadorBinario Formula Formula FechaParen .
+AbreParen = "(" .
+FechaParen = ")" .
+OperadorUnario = :OperadorUnario: .
+OperadorBinario = :OperadorBinario:  .
