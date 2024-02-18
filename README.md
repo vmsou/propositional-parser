@@ -28,8 +28,16 @@ Cada expressão lógica avaliada pode ter qualquer combinação das operações 
 
 Para validar seu trabalho, você deve incluir no repl.it, no mínimo três arquivos contendo números diferentes de expressões proposicionais. O professor irá incluir um arquivo de testes extra para validar seu trabalho. Para isso, caberá ao professor incluir o arquivo no seu repl.it e rodar o seu programa carregando o arquivo de testes.
 
+## Exemplo:
+
+https://github.com/vmsou/propositional-parser/assets/73619111/f1f63596-f961-4884-9a19-5436aedf2ffe
+
 ## Como executa-lo
-Se você ter acesso a um terminal
+Rodando através do replit: [propositional-parser](https://replit.com/@vmsou/propositional-parser)
+
+ou 
+
+Se você ter acesso a um terminal com um fork
 
 ```bash
 mkdir build && cmake -S ./ -B ./build -G "MinGW Makefiles" && cmake --build ./build/
